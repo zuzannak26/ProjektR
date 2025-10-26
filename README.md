@@ -8,4 +8,4 @@ Projekt - analiza danych 2026
 
 #fajne są zajęcia
 
-#R studiooo
+#R studioooo
