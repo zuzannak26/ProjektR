@@ -15,6 +15,7 @@ output:
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
+library(tidyverse)
 ```
 
 # Wprowadzenie
