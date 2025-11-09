@@ -1,0 +1,20 @@
+---
+title: "Analiza trendów zakupowych"
+author: "Anhelina Beliak, Dominika Harasimiuk, Zuzanna Kopeć"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::robobook:
+    highlight: kate
+    toc: true
+    toc_depth: 3
+    self_contained: true
+    number_section: true
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+## Global options
+knitr::opts_chunk$set(cache = TRUE)
+dane <- read.csv("trendy_zakupowe_new.csv")
+```
+
