@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output:
   rmdformats::robobook:
     highlight: kate
-    toc: true
     toc_depth: 3
     self_contained: true
     number_section: true
@@ -18,3 +17,30 @@ knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
 ```
 
+# Wprowadzenie
+
+Celem raportu jest analiza trendów...
+Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`. 
+
+## Opis danych
+
+- Customer ID - unikalny identyfikator dla każdego klienta
+- Wiek - wiek klienta
+- Płeć - płeć klienta (mężczyzna/kobieta)
+- Zakupiony przedmiot - przedmiot zakupiony przez klienta
+- Kategoria - kategoria zakupionego przedmiotu
+- Kwota zakupu (USD) - kwota zakupu w USD
+- Lokalizacja - Lokalizacja, w której dokonano zakupu
+- Rozmiar - rozmiar zakupionego produktu
+- Kolor - kolor zakupionego przedmiotu
+- Sezon - sezon, w którym dokonano zakupu
+- Ocena recenzji - ocena wystawiona przez klienta dla zakupionego produktu
+- Status subskrypcji - wskazuje, czy klient posiada subskrypcję (Tak/Nie)
+- Rodzaj wysyłki - rodzaj wysyłki wybrany przez klienta
+- Zastosowany rabat - wskazuje, czy do zakupu zastosowano rabat (Tak/Nie)
+- Użyto kodu promocyjnego - wskazuje, czy do zakupu użyto kodu promocyjnego (Tak/Nie).
+- Poprzednie zakupy - łączna liczba transakcji dokonanych przez klienta w sklepie, z wyłączeniem bieżącej transakcji.
+- Metoda płatności - najbardziej preferowana metoda płatności klienta
+- Częstotliwość zakupów - częstotliwość, z jaką klient dokonuje zakupów (np. co tydzień, co dwa tygodnie, co miesiąc).
+
+# Data wrangling
