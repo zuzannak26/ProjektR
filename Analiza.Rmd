@@ -71,3 +71,13 @@ Braki nie zależały od siebie.
 library(finalfit)
 missing_pattern(dane)
 ```
+Dodatkowo, wykonuję test Little'a:
+
+
+```{r}
+library(ggplot2)
+ggplot(dane, aes(x=Season, y=Age)) +
+  geom_miss_point() +
+  labs(title="Wzorce braków danych w DANE",
+       x="Season",
+       y="Age")
