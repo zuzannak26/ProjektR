@@ -116,3 +116,23 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 - discount applied: yes, no
 - promo code use: yes, no
 - subscription: yes, no
+
+```{r}
+rules <- validator(
+Discount.Applied %in% c("Yes","No"),
+Promo.Code.Used %in% c("Yes","No"),
+Subscription.Status %in% c("Yes","No"),
+Size %in% c("XS","S","M","L","XL"),
+Rewiev.Rating >= 0 & Rewiev.Rating <= 5,
+Purchase.Amount..USD. >= 0,
+Gender %in% c("Female","Male"),
+Age >= 0 & Age <= 120,
+Previous.Purchases >=0
+)
+```
+```{r}
+cf <- confront(dane, rules, key="Customer.ID")
+
+barplot(cf)
+
+```
