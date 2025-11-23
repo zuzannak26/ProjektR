@@ -19,9 +19,6 @@ library(tidyverse)
 install.packages("naniar")
 library(naniar)
 install.packages("finalfit")
-install.packages("VIM")
-installed.packages("mice")
-library(mice)
 ```
 
 # Wprowadzenie
@@ -68,13 +65,14 @@ naniar::gg_miss_upset(dane)
 ```
 Braki nie zależały od siebie.
 
-## Wzorzec braków danych 
+##Wzorzec braków danych 
 
 ```{r}
 library(finalfit)
 missing_pattern(dane)
 ```
-## Wykres braków danych dla zmiennej Age i Season
+Dodatkowo, wykonuję test Little'a:
+
 ```{r}
 library(ggplot2)
 ggplot(dane, aes(x=Season, y=Age)) +
@@ -83,20 +81,3 @@ ggplot(dane, aes(x=Season, y=Age)) +
        x="Season",
        y="Age")
 ```
-
-## Imputacje metodą hotdeck
-
-```{r}
-library(VIM)
-dane_imp <- hotdeck(dane)
-naniar::vis_miss(dane_imp)
-```
-
-
-```{r}
-mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
-#Dopisać do pozostałych braków danych 
-```
-
-# 2.2 Walidacja danych
-
