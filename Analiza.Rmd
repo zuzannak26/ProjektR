@@ -130,6 +130,7 @@ Age >= 0 & Age <= 120,
 Previous.Purchases >=0
 )
 ```
+
 ```{r}
 cf <- confront(dane, rules, key="Customer.ID")
 
