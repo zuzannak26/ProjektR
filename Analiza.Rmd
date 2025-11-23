@@ -16,6 +16,9 @@ output:
 knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
 library(tidyverse)
+install.packages("naniar")
+library(naniar)
+install.packages("finalfit")
 ```
 
 # Wprowadzenie
@@ -45,3 +48,26 @@ Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`.
 - Częstotliwość zakupów - częstotliwość, z jaką klient dokonuje zakupów (np. co tydzień, co dwa tygodnie, co miesiąc).
 
 # Data wrangling
+
+# 2.1 Braki danych
+
+```{r}
+procent <- prop_complete_var(dane)*100
+```
+
+```{r}
+naniar::vis_miss(dane)
+```
+Wizualizacja połączeń w brakach danych:
+
+```{r}
+naniar::gg_miss_upset(dane)
+```
+Braki nie zależały od siebie.
+
+##Wzorzec braków danych 
+
+```{r}
+library(finalfit)
+missing_pattern(dane)
+```
