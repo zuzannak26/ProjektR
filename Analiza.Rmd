@@ -16,23 +16,12 @@ output:
 knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
 library(tidyverse)
-install.packages("naniar")
 library(naniar)
-install.packages("finalfit")
-<<<<<<< HEAD
-=======
-install.packages("VIM")
-installed.packages("mice")
 library(mice)
-install.packages("validate")
 library(validate)
-install.packages("validatetools")
 library(validatetools)
-install.packages("dcmodify")
 library(dcmodify)
-install.packages("errorlocate")
 library(errorlocate)
->>>>>>> a5b001dcb6e8324aa62f320f8fdeddfd6ad9c6d8
 ```
 
 # Wprowadzenie
@@ -94,9 +83,6 @@ ggplot(dane, aes(x=Season, y=Age)) +
   labs(title="Wzorce braków danych w DANE",
        x="Season",
        y="Age")
-<<<<<<< HEAD
-```
-=======
 ```
 
 ## Imputacje metodą hotdeck
@@ -123,4 +109,24 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 - discount applied: yes, no
 - promo code use: yes, no
 - subscription: yes, no
->>>>>>> a5b001dcb6e8324aa62f320f8fdeddfd6ad9c6d8
+
+```{r}
+rules <- validator(
+Discount.Applied %in% c("Yes","No"),
+Promo.Code.Used %in% c("Yes","No"),
+Subscription.Status %in% c("Yes","No"),
+Size %in% c("XS","S","M","L","XL"),
+Rewiev.Rating >= 0 & Rewiev.Rating <= 5,
+Purchase.Amount..USD. >= 0,
+Gender %in% c("Female","Male"),
+Age >= 0 & Age <= 120,
+Previous.Purchases >=0
+)
+```
+
+```{r}
+cf <- confront(dane, rules, key="Customer.ID")
+
+barplot(cf)
+
+```
