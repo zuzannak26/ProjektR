@@ -22,6 +22,7 @@ library(validate)
 library(validatetools)
 library(dcmodify)
 library(errorlocate)
+library(dplyr)
 ```
 
 # Wprowadzenie
@@ -51,14 +52,29 @@ Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`.
 - Częstotliwość zakupów - częstotliwość, z jaką klient dokonuje zakupów (np. co tydzień, co dwa tygodnie, co miesiąc).
 
 # Data wrangling
+## Zmiana nazw zmiennych
+```{r, include=FALSE}
+dplyr::rename(dane, 
+    ID = Customer.ID,
+    Item = Item.Purchased,
+    Amount = Purchase.Amount..USD.,
+    Rating = Review.Rating,
+    Subscription = Subscription.Status,
+    Shipping = Shipping.Type,
+    Discount = Discount.Applied,
+    Code = Promo.Code.Used,
+    Payment = Payment.Method,
+    Frequency = Frequency.of.Purchases
+)
+```
 
-# 2.1 Braki danych
+## Braki danych
 
-```{r}
+```{r, include=FALSE}
 procent <- prop_complete_var(dane)*100
 ```
 
-```{r}
+```{r, include=FALSE}
 naniar::vis_miss(dane)
 ```
 Wizualizacja połączeń w brakach danych:
@@ -68,15 +84,15 @@ naniar::gg_miss_upset(dane)
 ```
 Braki nie zależały od siebie.
 
-##Wzorzec braków danych 
+### Wzorzec braków danych 
 
-```{r}
+```{r, include=FALSE}
 library(finalfit)
 missing_pattern(dane)
 ```
 Dodatkowo, wykonuję test Little'a:
 
-```{r}
+```{r, include=FALSE}
 library(ggplot2)
 ggplot(dane, aes(x=Season, y=Age)) +
   geom_miss_point() +
@@ -85,21 +101,21 @@ ggplot(dane, aes(x=Season, y=Age)) +
        y="Age")
 ```
 
-## Imputacje metodą hotdeck
+### Imputacje metodą hotdeck
 
-```{r}
+```{r, include=FALSE}
 library(VIM)
 dane_imp <- hotdeck(dane)
 naniar::vis_miss(dane_imp)
 ```
 
 
-```{r}
+```{r, include=FALSE}
 mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 #Dopisać do pozostałych braków danych 
 ```
 
-# 2.2 Walidacja danych
+## Walidacja danych
 - age w przedziale [0;120] 
 - gender: female, male
 - purchase amount >0
@@ -110,7 +126,7 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 - promo code use: yes, no
 - subscription: yes, no
 
-```{r}
+```{r, include=FALSE}
 rules <- validator(
 Discount.Applied %in% c("Yes","No"),
 Promo.Code.Used %in% c("Yes","No"),
