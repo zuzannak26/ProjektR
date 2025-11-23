@@ -11,7 +11,7 @@ output:
     code_folding: show
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, error=FALSE}
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
@@ -54,7 +54,7 @@ Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`.
 # Data wrangling
 ## Zmiana nazw zmiennych
 ```{r, include=FALSE}
-dplyr::rename(dane, 
+dane <- rename(dane, 
     ID = Customer.ID,
     Item = Item.Purchased,
     Amount = Purchase.Amount..USD.,
@@ -70,7 +70,10 @@ dplyr::rename(dane,
 
 ## Braki danych
 
+W analizowanych danych występuje `r n_miss(dane)` obserwacji brakujących, stanowi to `r pct_miss(dane)`% wszystkich obserwacji i `r n_complete(dane)` danych kompletnych. 
+
 ```{r, include=FALSE}
+miss_var_summary(dane)
 procent <- prop_complete_var(dane)*100
 ```
 
@@ -128,12 +131,12 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 
 ```{r, include=FALSE}
 rules <- validator(
-Discount.Applied %in% c("Yes","No"),
-Promo.Code.Used %in% c("Yes","No"),
-Subscription.Status %in% c("Yes","No"),
+Discount %in% c("Yes","No"),
+Code %in% c("Yes","No"),
+Subscription %in% c("Yes","No"),
 Size %in% c("XS","S","M","L","XL"),
-Rewiev.Rating >= 0 & Rewiev.Rating <= 5,
-Purchase.Amount..USD. >= 0,
+Rating >= 0 & Rewiev.Rating <= 5,
+Amount >= 0,
 Gender %in% c("Female","Male"),
 Age >= 0 & Age <= 120,
 Previous.Purchases >=0
