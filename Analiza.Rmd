@@ -22,6 +22,14 @@ install.packages("finalfit")
 install.packages("VIM")
 installed.packages("mice")
 library(mice)
+install.packages("validate")
+library(validate)
+install.packages("validatetools")
+library(validatetools)
+install.packages("dcmodify")
+library(dcmodify)
+install.packages("errorlocate")
+library(errorlocate)
 ```
 
 # Wprowadzenie
@@ -99,4 +107,12 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 ```
 
 # 2.2 Walidacja danych
-
+- age w przedziale [0;120] 
+- gender: female, male
+- purchase amount >0
+- size: XS, S, M, L, XL
+- review rating w przedziale [0;5]
+- previous purchases >0
+- discount applied: yes, no
+- promo code use: yes, no
+- subscription: yes, no
