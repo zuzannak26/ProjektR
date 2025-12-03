@@ -82,7 +82,7 @@ naniar::vis_miss(dane)
 ```
 Wizualizacja połączeń w brakach danych:
 
-```{r, include=FALSE}
+```{r}
 naniar::gg_miss_upset(dane)
 ```
 Braki nie zależały od siebie.
@@ -143,8 +143,8 @@ Previous.Purchases >=0
 )
 ```
 
-```{r, include=FALSE}
-cf <- confront(dane, rules, key="ID")
+```{r}
+cf <- confront(dane, rules, key="Customer.ID")
 
 barplot(cf)
 
