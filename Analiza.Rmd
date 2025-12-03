@@ -110,6 +110,10 @@ ggplot(dane, aes(x=Season, y=Age)) +
 library(VIM)
 dane_imp <- hotdeck(dane)
 naniar::vis_miss(dane_imp)
+#dane bez braków
+dane_kompletne <- dane_imp[,1:18]
+#sprawdzenie czy dane_kompletne nie zawierają braków danych
+vis_miss(dane_kompletne)
 ```
 
 
@@ -144,8 +148,16 @@ Previous.Purchases >=0
 ```
 
 ```{r}
-cf <- confront(dane, rules, key="Customer.ID")
+cf <- confront(dane_kompletne, rules, key="ID")
 
 barplot(cf)
 
 ```
+Przykładowe pytania badawcze:
+1. Jak wiek i płeć klienta wpływają na kwotę zakupu i kategorię zakupionych przedmiotów?
+2. Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
+3. Jakie są najpopularniejsza kategoria i rodzaj ubrań w zależności od lokalizacji?
+4. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
+5. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
+6. Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
+7. 
