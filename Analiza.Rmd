@@ -115,6 +115,7 @@ naniar::vis_miss(dane_imp)
 dane_kompletne <- dane_imp[,1:18]
 #sprawdzenie czy dane_kompletne nie zawierają braków danych
 vis_miss(dane_kompletne)
+view(dane_kompletne)
 ```
 
 
@@ -162,8 +163,11 @@ Przykładowe pytania badawcze:
 3. Jakie są najpopularniejsza kategoria i rodzaj ubrań w zależności od lokalizacji?
 4. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
 5. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
-6. Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
+6. Czy klienci wydający więcej wybierają szybsze opcje wysyłki? - histogram 
 7. Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+8. Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach - wykres punktowy
+9. Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
+10. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 ```{r}
@@ -181,19 +185,25 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_boxplot() 
 ```
 
-## Poprawić
+## Poprawić - w naszym przypadku zniżka nie wpływa?
 ```{r}
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
   mutate(num_clients = n()) %>%
   ungroup()
 
-ggplot(data = dane_kompletne, aes(x=num_clients, y=Amount, color=Subscription)) +
+dane_kompletne <- dane_kompletne %>%
+  group_by(Location) %>%
+  mutate(total_sale_per_location = sum(Amount)) %>%
+  ungroup()
+
+
+ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients, color=Discount)) +
   geom_point() +
-  scale_x_continuous(name = "Sprzedaż") +
+  scale_x_continuous(name = "Sprzedaż w poszczególnych lokalizacjach") +
   scale_y_continuous(name = "Liczba klientów") +
-  scale_color_discrete(name = "Subskrypcja") +
-  ggtitle("Czy posiadanie subskrypcji wpływa na wydaną kwotę") +
+  scale_color_discrete(name = "Zniżka") +
+  ggtitle("Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach") +
   theme_light()
 ```
 
@@ -207,4 +217,45 @@ ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   labs(title = "Wykres słupkowy skumulowany (ggplot2)",
        x = "Kategoria", y = "Wartość", fill = "Podkategoria") +
   theme_minimal()
+```
+
+## Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
+```{r}
+dane_kompletne %>%
+  count(Gender, Category) %>%
+  ggplot(aes(x = Gender, 
+             y = Category,
+             fill = n)) +
+  geom_tile() +
+  geom_label(aes(label = n), color = "white") +
+  scale_fill_gradient(low = "#c994c7", 
+                      high = "#dd1c77")
+
+
+```
+
+
+## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
+```{r}
+dane_kompletne %>%
+  count(Subscription, Frequency) %>%
+  ggplot(aes(x = Subscription, 
+             y = Frequency,
+             fill = n)) +
+  geom_tile() +
+  geom_label(aes(label = n), color = "white") +
+  scale_fill_gradient(low = "#c994c7", 
+                      high = "#dd1c77")
+
+
+```
+
+##Poprawić
+```{r}
+ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
+  geom_point() +
+  xlab("Rating") +
+  ylab("Previous Purchases") +
+  ggtitle("Ocena vs poprzedni zakup") +
+  theme_light()
 ```
