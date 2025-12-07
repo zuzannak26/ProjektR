@@ -23,6 +23,7 @@ library(validatetools)
 library(dcmodify)
 library(errorlocate)
 library(dplyr)
+library(ggplot2)
 ```
 
 # Wprowadzenie
@@ -153,6 +154,8 @@ cf <- confront(dane_kompletne, rules, key="ID")
 barplot(cf)
 
 ```
+# Wizualizacja danych
+
 Przykładowe pytania badawcze:
 1. Jak wiek i płeć klienta wpływają na kwotę zakupu i kategorię zakupionych przedmiotów?
 2. Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
@@ -160,4 +163,36 @@ Przykładowe pytania badawcze:
 4. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
 5. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
 6. Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
-7. 
+7. Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+
+## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
+```{r}
+ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
+  geom_col() +
+  xlab("Wydatki") +
+  ylab("Rodzaj wysyłki") +
+  ggtitle("Rodzaj wysyłki w zależności od wydanej kwoty") +
+  theme_light()
+
+str(dane_kompletne$Shipping)
+dane_kompletne$Shipping <- factor(dane_kompletne$Shipping)
+
+ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
+  geom_boxplot() 
+```
+
+## 
+```{r}
+dane_kompletne <- dane_kompletne %>%
+  group_by(Location) %>%
+  mutate(num_clients = n()) %>%
+  ungroup()
+
+ggplot(data = dane_kompletne, aes(x=num_clients, y=Amount, color=Subscription)) +
+  geom_point() +
+  scale_x_continuous(name = "Sprzedaż") +
+  scale_y_continuous(name = "Liczba klientów") +
+  scale_color_discrete(name = "Subskrypcja") +
+  ggtitle("Czy posiadanie subskrypcji wpływa na wydaną kwotę") +
+  theme_light()
+```
