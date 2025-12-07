@@ -181,7 +181,7 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_boxplot() 
 ```
 
-## 
+## Poprawić
 ```{r}
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
@@ -195,4 +195,16 @@ ggplot(data = dane_kompletne, aes(x=num_clients, y=Amount, color=Subscription)) 
   scale_color_discrete(name = "Subskrypcja") +
   ggtitle("Czy posiadanie subskrypcji wpływa na wydaną kwotę") +
   theme_light()
+```
+
+## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
+```{r}
+ggplot(dane_kompletne, aes(x=Category, y=Location, fill = Amount)) +
+  geom_tile()
+
+ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
+  geom_bar(stat = "identity", position = "stack") + 
+  labs(title = "Wykres słupkowy skumulowany (ggplot2)",
+       x = "Kategoria", y = "Wartość", fill = "Podkategoria") +
+  theme_minimal()
 ```
