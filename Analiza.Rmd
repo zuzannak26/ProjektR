@@ -185,7 +185,7 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_boxplot() 
 ```
 
-## Poprawić - w naszym przypadku zniżka nie wpływa?
+## Czy większa liczba klientów wpływa na wyższe 
 ```{r}
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
@@ -205,6 +205,10 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients, colo
   scale_color_discrete(name = "Zniżka") +
   ggtitle("Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach") +
   theme_light()
+
+ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases, colour = Frequency)) +
+  geom_jitter()
+  
 ```
 
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
