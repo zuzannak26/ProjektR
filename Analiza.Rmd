@@ -198,12 +198,11 @@ dane_kompletne <- dane_kompletne %>%
   ungroup()
 
 
-ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients, color=Discount)) +
+ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
   geom_point() +
   scale_x_continuous(name = "Sprzedaż w poszczególnych lokalizacjach") +
   scale_y_continuous(name = "Liczba klientów") +
-  scale_color_discrete(name = "Zniżka") +
-  ggtitle("Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach") +
+  ggtitle("Całowita sprzedaż w poszczególnych lokalizacjach") +
   theme_light()
 
 ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases, colour = Frequency)) +
