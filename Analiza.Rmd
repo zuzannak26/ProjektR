@@ -256,7 +256,7 @@ dane_kompletne %>%
 ##Poprawić
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
-  geom_point() +
+  geom_jitter() +
   xlab("Rating") +
   ylab("Previous Purchases") +
   ggtitle("Ocena vs poprzedni zakup") +
