@@ -205,15 +205,23 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
   ggtitle("Całowita sprzedaż w poszczególnych lokalizacjach") +
   theme_light()
 
-ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases, colour = Frequency)) +
-  geom_jitter()
+ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
+geom_point(alpha = 0.5, size = 1, color = "#7a0177") +
+  facet_wrap(~ Frequency) +
+  theme_minimal()
   
 ```
 
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
 ```{r}
-ggplot(dane_kompletne, aes(x=Category, y=Location, fill = Amount)) +
-  geom_tile()
+ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(
+    low = "#fde0ef",
+    high = "#7a0177",
+    name = "Wartość"
+  ) +
+  theme_minimal()
 
 ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   geom_bar(stat = "identity", position = "stack") + 
@@ -231,8 +239,8 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#c994c7", 
-                      high = "#dd1c77")
+  scale_fill_gradient(low = "#fde0ef", 
+                      high = "#7a0177")
 
 
 ```
@@ -247,8 +255,8 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#c994c7", 
-                      high = "#dd1c77")
+  scale_fill_gradient(low = "#fde0ef", 
+                      high = "#7a0177")
 
 
 ```
