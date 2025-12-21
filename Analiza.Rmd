@@ -270,3 +270,90 @@ ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
   ggtitle("Ocena vs poprzedni zakup") +
   theme_light()
 ```
+
+## Statystyki opisowe zmiennych ilościowych
+
+```{r}
+library(psych)
+raport <-
+  list("Cena" =
+       list("Min"= ~ min(Amount),
+            "Max"= ~ max(Amount),
+            "Kwartyl dolny"= ~ quantile(Amount,0.25),
+            "Mediana"= ~ round(median(Amount),2),
+            "Kwartyl górny"= ~ quantile(Amount,0.75),
+            "Średnia"= ~ round(mean(Amount),2),
+            "Odch. std."= ~ round(sd(Amount),2),
+            "IQR"= ~ round(iqr(Amount),2),
+            "Odchylenie ćwiartkowe"=~round(iqr(Amount)/2,2),
+            "Odch. std. w %"=~round((sd(price_PLN)/mean(Amount)),2),
+            "Odch. ćwiartkowe w %"=~round((iqr(Amount)/median(Amount)),2),
+            "Skośność"=~round(skewness(Amount),2),
+            "Kurtoza"=~round(kurtosis(Amount),2)
+            ))
+tabela<-summary_table(dane_kompletne, summaries = raport, by = c("Location"))
+knitr::kable(tabela,
+  digits = 2)
+```
+## Korelacje zmiennych jakościowych
+
+```{r}
+library(data.table) # data mgmt
+library(gtools) # combination
+library(ggplot2) # graphics
+library(plotly) # interactive graphics
+# Cramer's V calculation --------------------------------------------------
+
+nowe_dane <- dane_kompletne[,c(3,4,5,7,8,9,10,12,13,14,15,17,18)]
+cat_var <- colnames(nowe_dane)
+# Function to compute Cramer's V
+cv.test = function(x,y) {
+  CV = sqrt(chisq.test(x, y, correct=FALSE)$statistic /
+              (length(x)[1] * (min(length(unique(x))[1],length(unique(y))[1]) - 1)))
+  return(as.numeric(CV))
+}
+
+# Apply the function to the combination of categorical variable
+v_cramer_all <- function(cat_var, df){
+  cat_var_grid <- data.table(combinations(n = length(cat_var), r = 2, v = cat_var, repeats.allowed = FALSE))
+  
+  do.call(rbind,
+          apply(cat_var_grid, 1, function(x){
+            tmp <- as.character(x)
+            vec1 <- unlist(df[,tmp[1], with = FALSE])
+            vec2 <- unlist(df[,tmp[2], with = FALSE])
+            
+            data.table(
+              variable_x = tmp[1],
+              variable_y = tmp[2],
+              chi2 = chisq.test(x = vec1, vec2, correct=FALSE)$p.value,
+              v_cramer = cv.test(x = vec1, y = vec2)
+            )
+          }))
+  
+}
+
+results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
+
+
+
+# Heatmap vizualisation with ggplot2  -------------------------------------
+
+g <- ggplot(results, aes(variable_x, variable_y)) +
+  geom_tile(aes(fill = v_cramer), colour = "black") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  theme_bw() + xlab(NULL) + ylab(NULL) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  ggtitle("Cramer's V heatmap")
+
+ggplotly(g)
+```
+
+## Korelacja zmiennych ilościowych
+
+```{r}
+korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
+corrplot(korelacja_macierz, method="color")
+```
+
