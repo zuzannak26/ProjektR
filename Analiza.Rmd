@@ -271,6 +271,25 @@ ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
   theme_light()
 ```
 
+## Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu? 
+#Poprawić- Category można zmienić na Item 
+```{r}
+ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient(
+    low = "#fde0ef",
+    high = "#7a0177",
+    name = "Wartość") +
+  theme_minimal()
+```
+##Poprawić - nie mam pomysłu na ten wykres, ale ciekawe są te kształty
+```{r}
+library(ggplot2)
+
+ggplot(dane_kompletne, aes(x=Location, y=Item, color=Category, shape=Category)) +
+  geom_point()
+```
+
 ## Statystyki opisowe zmiennych ilościowych
 
 ```{r}
