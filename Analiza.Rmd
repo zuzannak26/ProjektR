@@ -344,6 +344,24 @@ dane_kompletne %>%
 
 ```
 
+#Średnia ocen zakupów w poszczególnych stanach
+```{r}
+library(usmap)
+library(plotly)
+
+dane_mapa <- avg_rating_per_location %>% 
+  rename(state = Location)
+
+
+ggplotly(
+plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE) + 
+  scale_fill_continuous(low = "red", high = "green", name = "Średnia ocena", label = scales::comma) + 
+  theme(legend.position = "right") +
+  labs(title = "Średnia ocena zakupów w poszczególnych stanach")
+)
+
+```
+
 ##Poprawić
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
