@@ -158,16 +158,96 @@ barplot(cf)
 # Wizualizacja danych
 
 Przykładowe pytania badawcze:
-1. Jak wiek i płeć klienta wpływają na kwotę zakupu i kategorię zakupionych przedmiotów?
-2. Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
-3. Jakie są najpopularniejsza kategoria i rodzaj ubrań w zależności od lokalizacji?
-4. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
-5. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
-6. Czy klienci wydający więcej wybierają szybsze opcje wysyłki? - histogram 
-7. Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
-8. Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach - wykres punktowy
-9. Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
-10. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
+1. Czy wiek konsumentów wpływa na wybór kategorii zakupionych przedmiotów?
+2. Czy wiek konsumentów wpływa na wysokość kwoty zakupu?
+3. Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
+4. Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
+5. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
+6. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
+7. Czy klienci wydający więcej wybierają szybsze opcje wysyłki? - histogram 
+8. Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+9. Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach - wykres punktowy
+10. Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
+11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
+
+## Czy wiek wpływa na kategorię zakupionych przedmiotów?
+```{r}
+age_group <- cut(dane_kompletne$Age, 
+                           breaks = c(18, 30, 45, 60, Inf), 
+                           labels = c("18-29", "30-44", "45-59", "60+"),
+                           right = FALSE)
+ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
+  geom_bar(position = "fill") +
+  scale_y_continuous(labels = scales::percent) +
+  labs(
+    title = "Wpływ wieku na kategorię zakupionych produktów",
+    x = "Kategoria",
+    y = "Udział procentowy",
+    fill = "Grupa wiekowa"
+  ) +
+  theme_minimal()
+```
+
+## Czy wiek wpływa na kwotę zakupu?
+```{r}
+ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
+  geom_col() +
+  xlab("Wiek") +
+  ylab("Kwota zakupu") +
+  ggtitle("Kwota zakupu w zależności od wieku") +
+  theme_light()
+```
+
+## Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
+```{r}
+ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
+  geom_bar(position = "dodge") +
+  facet_wrap(~ Category) +
+  scale_fill_manual(values = c(
+    "Red"   = "red",
+    "Blue"  = "blue",
+    "Black" = "black",
+    "White" = "white",
+    "Green" = "green",
+    "Beige" = "beige",
+    "Brown" = "brown",
+    "Charcoal" = "#36454F",
+    "Cyan" = "#00FFFF",
+    "Gold" = "#FFD700",
+    "Gray" = "gray",
+    "Indigo" = "#4B0082",
+    "Lavender" = "#E6E6FA",
+    "Magenta" = "#FF00FF",
+    "Maroon" = "#800000",
+    "Olive" = "#808000",
+    "Orange" = "orange",
+    "Peach" = "#FFE5B4",
+    "Pink" = "pink",
+    "Purple" = "purple",
+    "Silver" = "#C0C0C0",
+    "Teal" = "#008080",
+    "Turquoise" = "#40E0D0",
+    "Violet" = "#EE82EE",
+    "Yellow" = "yellow"
+  )) +
+  labs(
+    title = "Najpopularniejsze kombinacje rozmiarów i kolorów w kategoriach",
+    x = "Rozmiar",
+    y = "Kategoria",
+    fill = "Kolor"
+  ) +
+  theme_minimal()
+```
+
+
+## Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
+```{r}
+ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
+  geom_bar(position = "dodge") +
+  xlab("Metoda płatności") +
+  ggtitle("Preferencje dotyczące metod płatności w zależności od grupy wiekowej") +
+  theme_light()
+```
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 ```{r}
