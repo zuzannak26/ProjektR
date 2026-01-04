@@ -165,11 +165,11 @@ Przykładowe pytania badawcze:
 4. Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
 5. Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
 6. Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
-7. Czy klienci wydający więcej wybierają szybsze opcje wysyłki? - histogram 
+7. Czy klienci wydający więcej wybierają szybsze opcje wysyłki?  
 8. Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
-9. Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach - wykres punktowy
-10. Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
-11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
+9. Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach 
+10. Czy płeć wpływa na zakup produktów z poszczególnych kategorii? 
+11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? 
 
 ## Czy wiek wpływa na kategorię zakupionych przedmiotów?
 ```{r}
@@ -240,7 +240,6 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
   theme_minimal()
 ```
 
-
 ## Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
@@ -285,7 +284,10 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
   scale_y_continuous(name = "Liczba klientów") +
   ggtitle("Całowita sprzedaż w poszczególnych lokalizacjach") +
   theme_light()
+```
 
+## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+```{r}
 ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
 geom_point(alpha = 0.5, size = 1, color = "#7a0177") +
   facet_wrap(~ Frequency) +
@@ -311,7 +313,7 @@ ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   theme_minimal()
 ```
 
-## Czy płeć wpływa na zakup produktów z poszczególnych kategorii? - wykres kafelowy 1
+## Czy płeć wpływa na zakup produktów z poszczególnych kategorii? 
 ```{r}
 dane_kompletne %>%
   count(Gender, Category) %>%
@@ -327,7 +329,7 @@ dane_kompletne %>%
 ```
 
 
-## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? - wykres kafelkowy 2
+## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
 ```{r}
 dane_kompletne %>%
   count(Subscription, Frequency) %>%
