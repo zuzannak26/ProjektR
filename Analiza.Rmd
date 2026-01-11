@@ -116,11 +116,11 @@ Powyższe wykresy obrazujące braki w danych wskazują, że chociaż największa
 Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych Age, Purchase_Amount_USD oraz Season, co potwierdza, że braki danych nie są całkowicie losowe.
 Dodatkowo, wykonuję test Little'a:
 
-#POPRAWIĆ
+# POPRAWIĆ
 
 ```{r, include=FALSE}
-mcar_test <- mcar_test(data[, c("Age", "Purchase_Amount_USD", "Season")])
-mcar_test
+#mcar_test <- mcar_test(data[, c("Age", "Amount", "Season")])
+#mcar_test
 ```
 
 ```{r, include=FALSE}
@@ -314,7 +314,7 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 ```
 
 ## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
-```{r}
+```{r, include=FALSE}
 dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
                 breaks=c(-Inf, 1, 2, 3, 4, Inf),
                 labels=c("Very Low", "Low", "Medium", "High", "Very High"))
@@ -379,22 +379,21 @@ dane_kompletne %>%
 # Średnia ocen zakupów w poszczególnych stanach
 
 ```{r}
-library(usmap)
+#library(usmap)
 library(plotly)
 
-dane_kompletne$avg_rating_per_location <- dane_kompletne %>%
-  group_by(Location) %>%
-  summarise(Srednia = mean(Rating, na.rm = TRUE))
+#dane_kompletne$avg_rating_per_location <- dane_kompletne %>%
+  #group_by(Location) %>%
+  #summarise(Srednia = mean(Rating, na.rm = TRUE))
 #dane_mapa <- avg_rating_per_location %>% 
   #rename(state = Location)
 
 
-ggplotly(
-plot_usmap(data = dane_kompletne, values = "Srednia", color = "white", labels = TRUE) + 
-  scale_fill_continuous(low = "red", high = "green", name = "Średnia ocena", label = scales::comma) + 
-  theme(legend.position = "right") +
-  labs(title = "Średnia ocena zakupów w poszczególnych stanach")
-)
+#ggplotly(
+#plot_usmap(data = dane_kompletne, values = "Srednia", color = "white", labels = TRUE) + 
+ # scale_fill_continuous(low = "red", high = "green", name = "Średnia ocena", label = scales::comma) + 
+  #theme(legend.position = "right") +
+  #labs(title = "Średnia ocena zakupów w poszczególnych stanach"))
 
 ```
 
@@ -504,6 +503,7 @@ ggplotly(g)
 ## Korelacja zmiennych ilościowych
 
 ```{r}
+library(corrplot)
 korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
 corrplot(korelacja_macierz, method="color")
 ```
