@@ -29,6 +29,7 @@ library(ggstatsplot)
 library(broom)
 library(kableExtra)
 library(ggplot2)
+library(mice)
 ```
 
 # Wprowadzenie
@@ -101,6 +102,13 @@ missing_pattern(dane)
 Powyższe wykresy obrazujące braki w danych wskazują, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej.
 Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych Age, Purchase_Amount_USD oraz Season, co potwierdza, że braki danych nie są całkowicie losowe.
 Dodatkowo, wykonuję test Little'a:
+
+#POPRAWIĆ
+
+```{r, include=FALSE}
+mcar_test <- mcar_test(data[, c("Age", "Purchase_Amount_USD", "Season")])
+mcar_test
+```
 
 ```{r, include=FALSE}
 library(ggplot2)
