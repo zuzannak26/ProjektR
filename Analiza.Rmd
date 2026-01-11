@@ -30,14 +30,43 @@ library(broom)
 library(kableExtra)
 library(ggplot2)
 library(mice)
+library(knitr)
+library(kableExtra)
 ```
 
 # Wprowadzenie
 
-Celem raportu jest analiza trendów...
+Celem projektu jest przeprowadzenie analizy danych sprzedażowych w celu znalezienia i zrozumienia wzorców zakupowych oraz preferencji klientów. Wykorzystując techniki czyszczenia danych, wizualizacji oraz wnioskowania statystycznego. Przeprowadzona analiza ma na celu odpowiedzenie na następujące pytania badawcze.
+
 Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`. 
 
 ## Opis danych
+
+Analizowany zbiór danych zawiera 3900 obserwacji i 18 zmiennych.
+```{r, include=FALSE}
+data_dict <- data.frame(
+  Zmienna = c("Customer ID", "Age", "Gender", "Item", "Category", 
+              "Amount", "Location", "Size", "Color", 
+              "Season", "Rating", "Subscription", "Shipping", "Discount", "Code", "Previous.Purchases", "Payment", "Frequency"),
+  Typ = c("Jakościowa (nominalna)", "Ilościowa (dyskretna)", "Jakościowa (binarna)", "Jakościowa (Nominalna)",
+          "Jakościowa (nominalna)", "Ilościowa (ciągła)", "Jakościowa (nominalna)", 
+          "Jakościowa (porządkowa)", "Jakościowa (nominalna)", "Jakościowa (nominalna)", "Ilościowa (ciągła)", "Jakościowa (binarna)", "Jakościowa (nominalna)", "Jakościowa (binarna)", "Jakościowa (binarna)", "Ilościowa (ciągła)", "Jakościowa (nominalna)", "Jakościowa (nominalna)" ),
+  Opis = c("Unikalny identyfikator","Wiek klienta w latach", "Płeć klienta", "Przedmiot zakupiony przez klienta", "Grupa produktów", "Wartość transakcji (USD)","Lokalizacja, w której dokonano zakupu","Rozmiar produktu (S-XL)", "Kolor zakupionego przedmiotu", "Pora roku zakupu","Ocena produktu (1-5)","Wskazuje, czy klient posiada subskrypcję","Rodzaj wysyłki wybrany przez klienta" 
+           ,"Wskazuje, czy do zakupu zastosowano rabat" ,"Wskazuje, czy do zakupu użyto kodu promocyjnego", "Łączna liczba transakcji dokonanych przez klienta w sklepie, z wyłączeniem bieżącej transakcji", "Najbardziej preferowana metoda płatności klienta", "Częstotliwość, z jaką klient dokonuje zakupów" ),
+  Wartości = c("Od 1 do 3800", "W latach", "Male, Female", "Backpack, Belt, Blouse, Boots, Coat, Dress, Gloves, Handbag, Hat, Hoodie, Jacket, Jeans, Jewelry, Pants, Sandals, Scarf, Shirt, Shoes, Shorts, Skirt, Sneakers, Socks, Sunglasses, Sweater, T-shirt","Accessories, Clothing, Footwear, Outerwear.", "Wartość liczbowa",  "50 stanów", "L,M,S, XL", "Beige, Black, Blue, Brown, Charcoal, Cyan, Gold, Gray, Green, Indigo, Lavender, Magenta, Maroon, Olive, Orange, Peach, Pink, Purple, Red, Silver, Teal, Turquoise, Violet, White, Yellow.","Fall, Spring, Summer, Winter.", "Wartość od 1 do 5", "Yes, No", "2-Day Shipping, Express, Free Shipping, Next Day Air, Standard, Store Pickup.", "Yes, No","Yes, No", "Wartość liczbowa", "Bank Transfer, Cash, Credit Card, Debit Card, PayPal, Venmo.", "Annually, Bi-Weekly, Every 3 Months, Fortnightly, Monthly, Quarterly, Weekly."  )
+)
+
+kable(data_dict, 
+      caption = "Tabela 1: Specyfikacja zmiennych w zbiorze danych",
+      booktabs = TRUE, 
+      align = "llll") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+                full_width = F, 
+                position = "left") %>%
+  column_spec(1, bold = TRUE, border_right = TRUE) %>%
+  column_spec(2, italic = TRUE)
+
+```
 
 - Customer ID - unikalny identyfikator dla każdego klienta
 - Wiek - wiek klienta
