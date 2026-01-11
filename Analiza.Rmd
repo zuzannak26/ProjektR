@@ -25,6 +25,7 @@ library(errorlocate)
 library(dplyr)
 library(ggplot2)
 library(psych)
+library(ggstatsplot)
 ```
 
 # Wprowadzenie
