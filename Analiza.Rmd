@@ -15,6 +15,7 @@ output:
 ## Global options
 knitr::opts_chunk$set(cache = TRUE)
 dane <- read.csv("trendy_zakupowe_new.csv")
+
 library(tidyverse)
 library(naniar)
 library(mice)
@@ -34,15 +35,29 @@ library(knitr)
 library(kableExtra)
 ```
 
+```{r}
+dane <- rename(dane, 
+    ID = Customer.ID,
+    Item = Item.Purchased,
+    Amount = Purchase.Amount..USD.,
+    Rating = Review.Rating,
+    Subscription = Subscription.Status,
+    Shipping = Shipping.Type,
+    Discount = Discount.Applied,
+    Code = Promo.Code.Used,
+    Payment = Payment.Method,
+    Frequency = Frequency.of.Purchases
+)
+```
+
 # Wprowadzenie
 
 Celem projektu jest przeprowadzenie analizy danych sprzedażowych w celu znalezienia i zrozumienia wzorców zakupowych oraz preferencji klientów. Wykorzystując techniki czyszczenia danych, wizualizacji oraz wnioskowania statystycznego. Przeprowadzona analiza ma na celu odpowiedzenie na następujące pytania badawcze.
 
-Zbiór danych zawiera `r nrow(dane)` wierszy oraz `r ncol(dane)`. 
-
 ## Opis danych
 
 Analizowany zbiór danych zawiera 3900 obserwacji i 18 zmiennych.
+
 ```{r, include=FALSE}
 data_dict <- data.frame(
   Zmienna = c("Customer ID", "Age", "Gender", "Item", "Category", 
@@ -68,47 +83,16 @@ kable(data_dict,
 
 ```
 
-- Customer ID - unikalny identyfikator dla każdego klienta
-- Wiek - wiek klienta
-- Płeć - płeć klienta (mężczyzna/kobieta)
-- Zakupiony przedmiot - przedmiot zakupiony przez klienta
-- Kategoria - kategoria zakupionego przedmiotu
-- Kwota zakupu (USD) - kwota zakupu w USD
-- Lokalizacja - Lokalizacja, w której dokonano zakupu
-- Rozmiar - rozmiar zakupionego produktu
-- Kolor - kolor zakupionego przedmiotu
-- Sezon - sezon, w którym dokonano zakupu
-- Ocena recenzji - ocena wystawiona przez klienta dla zakupionego produktu
-- Status subskrypcji - wskazuje, czy klient posiada subskrypcję (Tak/Nie)
-- Rodzaj wysyłki - rodzaj wysyłki wybrany przez klienta
-- Zastosowany rabat - wskazuje, czy do zakupu zastosowano rabat (Tak/Nie)
-- Użyto kodu promocyjnego - wskazuje, czy do zakupu użyto kodu promocyjnego (Tak/Nie).
-- Poprzednie zakupy - łączna liczba transakcji dokonanych przez klienta w sklepie, z wyłączeniem bieżącej transakcji.
-- Metoda płatności - najbardziej preferowana metoda płatności klienta
-- Częstotliwość zakupów - częstotliwość, z jaką klient dokonuje zakupów (np. co tydzień, co dwa tygodnie, co miesiąc).
+
 
 # Data wrangling
-## Zmiana nazw zmiennych
-```{r, include=FALSE}
-dane <- rename(dane, 
-    ID = Customer.ID,
-    Item = Item.Purchased,
-    Amount = Purchase.Amount..USD.,
-    Rating = Review.Rating,
-    Subscription = Subscription.Status,
-    Shipping = Shipping.Type,
-    Discount = Discount.Applied,
-    Code = Promo.Code.Used,
-    Payment = Payment.Method,
-    Frequency = Frequency.of.Purchases
-)
-```
 
 ## Braki danych
 
-W analizowanych danych występuje `r n_miss(dane)` obserwacji brakujących, stanowi to `r pct_miss(dane)`% wszystkich obserwacji i `r n_complete(dane)` danych kompletnych. 
+Pierwszym krokiem w analizie jest sprawdzenie czy w badanym zbiorze danych nie występują braki danych. Sprawdzono, że w analizowanych danych występuje `r n_miss(dane)` obserwacji brakujących, stanowi to `r pct_miss(dane)`% wszystkich obserwacji i `r n_complete(dane)` danych kompletnych. Następnie zostanie sprawdzone dla jakich zmiennych występują braki danych i czy można zauważyć wzorce braków danych.
 
 ```{r, include=FALSE}
+#to chyba można usunąć
 miss_var_summary(dane)
 procent <- prop_complete_var(dane)*100
 ```
