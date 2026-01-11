@@ -26,6 +26,9 @@ library(dplyr)
 library(ggplot2)
 library(psych)
 library(ggstatsplot)
+library(broom)
+library(kableExtra)
+library(ggplot2)
 ```
 
 # Wprowadzenie
@@ -174,7 +177,7 @@ Przykładowe pytania badawcze:
 
 ## Czy wiek wpływa na kategorię zakupionych przedmiotów?
 ```{r}
-age_group <- cut(dane_kompletne$Age, 
+dane_kompletne$age_group <- cut(dane_kompletne$Age, 
                            breaks = c(18, 30, 45, 60, Inf), 
                            labels = c("18-29", "30-44", "45-59", "60+"),
                            right = FALSE)
@@ -289,10 +292,15 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 
 ## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
 ```{r}
-ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
-geom_point(alpha = 0.5, size = 1, color = "#7a0177") +
-  facet_wrap(~ Frequency) +
-  theme_minimal()
+dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
+                breaks=c(-Inf, 1, 2, 3, 4, Inf),
+                labels=c("Very Low", "Low", "Medium", "High", "Very High"))
+ggplot(data = dane_kompletne, aes(y=Previous.Purchases)) +
+geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
+  xlab("Ocena") +
+  ylab("Liczba poprzednich zakupów") +
+  ggtitle("Liczba poprzednich zakupów w zależności od oceny") +
+  theme_light()
   
 ```
 
@@ -363,16 +371,6 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 
 ```
 
-##Poprawić
-```{r}
-ggplot(data = dane_kompletne, aes(x=Rating, y=Previous.Purchases)) +
-  geom_jitter() +
-  xlab("Rating") +
-  ylab("Previous Purchases") +
-  ggtitle("Ocena vs poprzedni zakup") +
-  theme_light()
-```
-
 ## Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu? 
 #Poprawić- Category można zmienić na Item 
 ```{r}
@@ -396,6 +394,8 @@ ggplot(dane_kompletne, aes(x=Location, y=Item, color=Category, shape=Category)) 
 
 ```{r}
 library(psych)
+library(qwraps2)
+library(EnvStats)
 raport <-
   list("Cena" =
        list("Min"= ~ min(Amount),
@@ -407,7 +407,7 @@ raport <-
             "Odch. std."= ~ round(sd(Amount),2),
             "IQR"= ~ round(iqr(Amount),2),
             "Odchylenie ćwiartkowe"=~round(iqr(Amount)/2,2),
-            "Odch. std. w %"=~round((sd(price_PLN)/mean(Amount)),2),
+            "Odch. std. w %"=~round((sd(Amount)/mean(Amount)),2),
             "Odch. ćwiartkowe w %"=~round((iqr(Amount)/median(Amount)),2),
             "Skośność"=~round(skewness(Amount),2),
             "Kurtoza"=~round(kurtosis(Amount),2)
@@ -478,3 +478,56 @@ korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
 corrplot(korelacja_macierz, method="color")
 ```
 
+## Wnioskowanie statystyczne
+```{r}
+ggbetweenstats(
+  data = dane_kompletne,
+  x = Category,
+  y = Amount) 
+```
+
+```{r}
+wyniki <- aov(Amount ~ Rating*Gender, data = dane_kompletne)
+summary(wyniki)
+```
+```{r}
+interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Amount,
+                 xlab = "Ocena zakupu",
+                 ylab = "Kwota zakupu",
+                 trace.label = "Płeć",
+                 col = c("blue", "pink"),
+                 lty = 1,
+                 lwd = 2) 
+```
+
+```{r}
+dane_kompletne |>
+  aov(Amount ~ Rating*Gender, data = _) |>
+  tidy() |>
+  kbl() |>
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+```
+
+```{r}
+#Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
+
+ggbarstats(
+  data = dane_kompletne,
+  x = Gender,
+  y = Category,
+  bf.message = FALSE
+)
+```
+
+```{r}
+#Czy istnieje zależność między kwotą zakupu a oceną zakupu?
+
+ggscatterstats(
+  data = dane_kompletne,
+  x = Amount,
+  y = Rating,
+  bf.message = FALSE,
+  title = "Zależność między wiekiem a kwotą zakupu"
+  
+)
+```
