@@ -91,7 +91,6 @@ Wizualizacja połączeń w brakach danych:
 ```{r}
 naniar::gg_miss_upset(dane)
 ```
-Braki nie zależały od siebie.
 
 ### Wzorzec braków danych 
 
@@ -99,6 +98,8 @@ Braki nie zależały od siebie.
 library(finalfit)
 missing_pattern(dane)
 ```
+Powyższe wykresy obrazujące braki w danych wskazują, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej.
+Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych Age, Purchase_Amount_USD oraz Season, co potwierdza, że braki danych nie są całkowicie losowe.
 Dodatkowo, wykonuję test Little'a:
 
 ```{r, include=FALSE}
@@ -176,6 +177,7 @@ Przykładowe pytania badawcze:
 11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów? 
 
 ## Czy wiek wpływa na kategorię zakupionych przedmiotów?
+
 ```{r}
 dane_kompletne$age_group <- cut(dane_kompletne$Age, 
                            breaks = c(18, 30, 45, 60, Inf), 
@@ -353,17 +355,21 @@ dane_kompletne %>%
 
 ```
 
-#Średnia ocen zakupów w poszczególnych stanach
+# Średnia ocen zakupów w poszczególnych stanach
+
 ```{r}
 library(usmap)
 library(plotly)
 
-dane_mapa <- avg_rating_per_location %>% 
-  rename(state = Location)
+dane_kompletne$avg_rating_per_location <- dane_kompletne %>%
+  group_by(Location) %>%
+  summarise(Srednia = mean(Rating, na.rm = TRUE))
+#dane_mapa <- avg_rating_per_location %>% 
+  #rename(state = Location)
 
 
 ggplotly(
-plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE) + 
+plot_usmap(data = dane_kompletne, values = "Srednia", color = "white", labels = TRUE) + 
   scale_fill_continuous(low = "red", high = "green", name = "Średnia ocena", label = scales::comma) + 
   theme(legend.position = "right") +
   labs(title = "Średnia ocena zakupów w poszczególnych stanach")
@@ -372,7 +378,9 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 ```
 
 ## Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu? 
-#Poprawić- Category można zmienić na Item 
+
+# Poprawić- Category można zmienić na Item 
+
 ```{r}
 ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
   geom_tile(color = "white") +
@@ -382,7 +390,8 @@ ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
     name = "Wartość") +
   theme_minimal()
 ```
-##Poprawić - nie mam pomysłu na ten wykres, ale ciekawe są te kształty
+## Poprawić - nie mam pomysłu na ten wykres, ale ciekawe są te kształty
+
 ```{r}
 library(ggplot2)
 
@@ -479,6 +488,7 @@ corrplot(korelacja_macierz, method="color")
 ```
 
 ## Wnioskowanie statystyczne
+
 ```{r}
 ggbetweenstats(
   data = dane_kompletne,
