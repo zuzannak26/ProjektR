@@ -33,6 +33,7 @@ library(ggplot2)
 library(mice)
 library(knitr)
 library(kableExtra)
+library(misty)
 ```
 
 ```{r}
@@ -114,14 +115,6 @@ missing_pattern(dane)
 ```
 Powyższe wykresy obrazujące braki w danych wskazują, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej.
 Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych Age, Purchase_Amount_USD oraz Season, co potwierdza, że braki danych nie są całkowicie losowe.
-Dodatkowo, wykonuję test Little'a:
-
-# POPRAWIĆ
-
-```{r, include=FALSE}
-#mcar_test <- mcar_test(data[, c("Age", "Amount", "Season")])
-#mcar_test
-```
 
 ```{r, include=FALSE}
 library(ggplot2)
@@ -217,6 +210,7 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
 ```
 
 ## Czy wiek wpływa na kwotę zakupu?
+
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   geom_col() +
@@ -227,6 +221,7 @@ ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
 ```
 
 ## Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
+
 ```{r}
 ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
   geom_bar(position = "dodge") +
@@ -268,6 +263,7 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
 ```
 
 ## Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
+
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
   geom_bar(position = "dodge") +
@@ -277,6 +273,7 @@ ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
 ```
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
+
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_col() +
@@ -292,7 +289,8 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_boxplot() 
 ```
 
-## Czy większa liczba klientów wpływa na wyższe 
+## Czy większa liczba klientów wpływa na wyższe
+
 ```{r}
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
@@ -314,6 +312,7 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 ```
 
 ## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+
 ```{r, include=FALSE}
 dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
                 breaks=c(-Inf, 1, 2, 3, 4, Inf),
@@ -328,6 +327,7 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
 ```
 
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
+
 ```{r}
 ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
   geom_tile(color = "white") +
@@ -345,7 +345,8 @@ ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   theme_minimal()
 ```
 
-## Czy płeć wpływa na zakup produktów z poszczególnych kategorii? 
+## Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
+
 ```{r}
 dane_kompletne %>%
   count(Gender, Category) %>%
@@ -362,6 +363,7 @@ dane_kompletne %>%
 
 
 ## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
+
 ```{r}
 dane_kompletne %>%
   count(Subscription, Frequency) %>%
@@ -399,8 +401,6 @@ library(plotly)
 
 ## Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu? 
 
-# Poprawić- Category można zmienić na Item 
-
 ```{r}
 ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
   geom_tile(color = "white") +
@@ -409,14 +409,6 @@ ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
     high = "#7a0177",
     name = "Wartość") +
   theme_minimal()
-```
-## Poprawić - nie mam pomysłu na ten wykres, ale ciekawe są te kształty
-
-```{r}
-library(ggplot2)
-
-ggplot(dane_kompletne, aes(x=Location, y=Item, color=Category, shape=Category)) +
-  geom_point()
 ```
 
 ## Statystyki opisowe zmiennych ilościowych
@@ -550,15 +542,3 @@ ggbarstats(
 )
 ```
 
-```{r}
-#Czy istnieje zależność między kwotą zakupu a oceną zakupu?
-
-ggscatterstats(
-  data = dane_kompletne,
-  x = Amount,
-  y = Rating,
-  bf.message = FALSE,
-  title = "Zależność między wiekiem a kwotą zakupu"
-  
-)
-```
