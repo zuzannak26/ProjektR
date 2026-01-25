@@ -384,6 +384,10 @@ library(usmap)
 library(plotly)
 
 
+avg_rating_per_location <- dane_kompletne %>%
+  group_by(Location) %>%
+  summarize(Srednia = mean(Rating))
+
 dane_mapa <- avg_rating_per_location %>% 
   rename(state = Location)
 
