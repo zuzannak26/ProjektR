@@ -532,9 +532,9 @@ dane_kompletne |>
   kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
 
-```{r}
-#Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
+## Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
 
+```{r}
 ggbarstats(
   data = dane_kompletne,
   x = Gender,
@@ -542,4 +542,5 @@ ggbarstats(
   bf.message = FALSE
 )
 ```
+
 
