@@ -544,3 +544,10 @@ ggbarstats(
 ```
 
 
+```{r}
+dane_kompletne |>
+  aov(Amount ~ Rating*Gender+Age, data = _) |>
+  tidy() |>
+  kbl() |>
+  kable_classic(full_width = FALSE, html_font = "Cambria")
+```
