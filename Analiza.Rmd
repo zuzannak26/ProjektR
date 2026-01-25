@@ -33,6 +33,7 @@ library(mice)
 library(knitr)
 library(kableExtra)
 library(misty)
+library(rstatix)
 ```
 
 ```{r}
@@ -525,11 +526,13 @@ interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Am
 ```
 
 ```{r}
-dane_kompletne |>
-  aov(Amount ~ Rating*Gender, data = _) |>
-  tidy() |>
-  kbl() |>
-  kable_classic(full_width = FALSE, html_font = "Cambria")
+
+
+dane_kompletne %>%
+  anova_test(Amount ~ Rating*Gender) %>%
+  kbl() %>%
+  kable_styling(bootstrap_options = c("striped", "hover"))
+                
 ```
 
 ## Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
@@ -551,3 +554,5 @@ dane_kompletne |>
   kbl() |>
   kable_classic(full_width = FALSE, html_font = "Cambria")
 ```
+
+
