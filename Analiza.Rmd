@@ -44,6 +44,7 @@ library(gtools) # combination
 library(ggplot2) # graphics
 library(plotly) # interactive graphics
 library(corrplot)
+library(VIM)
 ```
 
 ```{r, include=FALSE}
@@ -63,13 +64,19 @@ dane <- rename(dane,
 
 # Wprowadzenie
 
-Celem projektu jest przeprowadzenie analizy danych sprzedażowych w celu znalezienia i zrozumienia wzorców zakupowych oraz preferencji klientów. Wykorzystując techniki czyszczenia danych, wizualizacji oraz wnioskowania statystycznego. Przeprowadzona analiza ma na celu odpowiedzenie na następujące pytania badawcze.
+Celem projektu jest analiza danych sprzedażowych, której zadaniem jest identyfikacja oraz zrozumienie wzorców zakupowych i preferencji klientów. Analiza ta ma na celu wyszczególnienie zależności występujących w danych, określenie charakterystyki zachowań konsumenckich oraz wskazanie czynników wpływających na decyzje zakupowe.
+
+Wykorzystane zostały metody wstępnego przetwarzania danych, w szczególności techniki czyszczenia danych obejmujące identyfikację i eliminację braków danych.Zastosowane zostały narzędzia analizy danych, w tym techniki wizualizacji, umożliwiające przedstawienie rozkładów zmiennych, relacji pomiędzy nimi oraz identyfikację istotnych trendów.
+
+Kluczowym elementem badania będzie również zastosowanie metod wnioskowania statystycznego, pozwalających na formułowanie i weryfikację hipotez badawczych oraz ocenę istotności zaobserwowanych zależności.
+
+Przeprowadzona analiza ma na celu udzielenie odpowiedzi na sformułowane pytania badawcze, a także dostarczenie wniosków mogących stanowić podstawę do podejmowania decyzji biznesowych oraz dalszych badań analitycznych.
 
 ## Opis danych
 
 Analizowany zbiór danych zawiera 3900 obserwacji i 18 zmiennych.
 
-```{r, include=FALSE}
+```{r}
 data_dict <- data.frame(
   Zmienna = c("Customer ID", "Age", "Gender", "Item", "Category", 
               "Amount", "Location", "Size", "Color", 
@@ -98,7 +105,9 @@ kable(data_dict,
 
 ## Braki danych
 
-Pierwszym krokiem w analizie jest sprawdzenie czy w badanym zbiorze danych nie występują braki danych. Sprawdzono, że w analizowanych danych występuje `r n_miss(dane)` obserwacji brakujących, stanowi to `r pct_miss(dane)`% wszystkich obserwacji i `r n_complete(dane)` danych kompletnych. Następnie zostanie sprawdzone dla jakich zmiennych występują braki danych i czy można zauważyć wzorce braków danych.
+Pierwszym etapem przeprowadzonej analizy danych było zweryfikowanie kompletności badanego zbioru danych, w szczególności identyfikacja występowania braków danych. W tym celu dokonano oceny liczby obserwacji niekompletnych oraz ich udziału procentowego w całym zbiorze.
+
+Przeprowadzona analiza wykazała, że w badanym zbiorze danych występuje `r n_miss(dane)` obserwacji zawierających braki danych, co stanowi `r pct_miss(dane)`% wszystkich obserwacji, natomiast `r n_complete(dane)` obserwacji stanowią dane kompletne. W kolejnym kroku dokonano szczegółowej analizy braków danych wraz z badaniem struktury oraz wzorców występowania braków danych, w celu ustalenia, czy braki pojawiają się w sposób losowy, czy też wykazują określone zależności pomiędzy zmiennymi. Identyfikacja wzorców braków danych umożliwia podjęcie decyzji dotyczących dalszego postępowania z brakującymi obserwacjami, takich jak ich imputacja.
 
 ```{r, include=FALSE}
 #to chyba można usunąć
@@ -123,27 +132,41 @@ library(finalfit)
 missing_pattern(dane)
 ```
 
-Powyższe wykresy obrazujące braki w danych wskazują, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych Age, Purchase_Amount_USD oraz Season, co potwierdza, że braki danych nie są całkowicie losowe.
+Powyższy wykres obrazujący braki w danych wskazuje, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych: wiek (Age), wydatki (Purchase_Amount_USD) oraz sezon (Season), co potwierdza, że braki danych nie są całkowicie losowe.
 
-```{r, include=FALSE}
+```{r}
 library(ggplot2)
 ggplot(dane, aes(x=Season, y=Age)) +
   geom_miss_point() +
-  labs(title="Wzorce braków danych w DANE",
+  labs(title="Wzorce braków danych",
        x="Season",
        y="Age")
+
 ```
 
 ### Imputacje metodą hotdeck
 
+Imputacja metodą hotdeck polega na uzupełnianiu brakujących wartości poprzez przypisanie im rzeczywistych obserwacji pochodzących od statystycznie podobnych jednostek w tym samym zbiorze danych. Dobór tzw. dawcy odbywa się na podstawie zmiennych pomocniczych, które są kompletne i silnie powiązane z imputowaną cechą. W przeprowadzonej analizie wykorzystano imputację hotdeck w celu ograniczenia skali braków danych bez wprowadzania sztucznych wartości.
+
 ```{r, include=FALSE}
-library(VIM)
 dane_imp <- hotdeck(dane)
 naniar::vis_miss(dane_imp)
 #dane bez braków
 dane_kompletne <- dane_imp[,1:18]
+
+```
+
+Po przeprowadzonej imputacji metodą hotdeck, zbiór danych został uzupełniony o brakujące wartości, co pozwoliło na uzyskanie kompletnego zestawu danych do dalszych analiz.
+
+```{r}
 #sprawdzenie czy dane_kompletne nie zawierają braków danych
-vis_miss(dane_kompletne)
+vis_miss(dane_kompletne, cluster = TRUE) + 
+theme(
+    axis.text.x = element_text(angle = 45, hjust = 0, vjust = 0.5, size = 7),
+    plot.margin = margin(t = 60, r = 10, b = 10, l = 10),
+    plot.title = element_text(hjust = 0, face = "bold", size = 14),
+  ) +
+  labs(title = "Analiza kompletności danych")
 ```
 
 ```{r, include=FALSE}
@@ -153,15 +176,19 @@ mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 
 ## Walidacja danych
 
--   age w przedziale [0;120]
--   gender: female, male
--   purchase amount \>0
--   size: XS, S, M, L, XL
--   review rating w przedziale [0;5]
--   previous purchases \>0
--   discount applied: yes, no
--   promo code use: yes, no
--   subscription: yes, no
+Przeprowadzona została walidacja danych, której celem jest zapewnienie poprawności, spójności oraz wiarygodności zbioru danych wykorzystywanego w dalszych analizach. Przeprowadzono weryfikację danych pod kątem zgodności wartości zmiennych z przyjętymi założeniami merytorycznymi oraz logicznymi ograniczeniami wynikającymi z charakteru analizowanego zjawiska. Sprawdzono m.in. poprawność zakresów zmiennych liczbowych, a także zgodność zmiennych jakościowych z dopuszczalnymi kategoriami. Przeprowadzone działania walidacyjne pozwoliły na przygotowanie spójnego i rzetelnego zbioru danych do dalszych etapów analizy.
+
+W ramach walidacji danych przyjęto następujące kryteria poprawności zmiennych:
+
+-   Wiek (age) – wartości mieszczące się w przedziale od 0 do 120 lat.
+-   Płeć (gender) – zmienna jakościowa ograniczona do kategorii female oraz male.
+-   Kwota zakupu (purchase amount) – wartości dodatnie, większe od zera.
+-   Rozmiar (size) – dopuszczalne kategorie: XS, S, M, L, XL.
+-   Ocena opinii (review rating) – wartości z przedziału od 0 do 5.
+-   Liczba wcześniejszych zakupów (previous purchases) – wartości dodatnie, większe od zera.
+-   Zastosowanie rabatu (discount applied) – zmienna binarna: tak lub nie.
+-   Użycie kodu promocyjnego (promo code use) – zmienna binarna: tak lub nie.
+-   Subskrypcja (subscription) – zmienna binarna: tak lub nie.
 
 ```{r, include=FALSE}
 rules <- validator(
@@ -546,7 +573,7 @@ wyniki_tidy <- tidy(wyniki)
 
 wyniki_tidy %>%
   kable(
-    caption = "Wyniki analizy wariancji dla zmiennej Amount",
+    caption = "Tabela 2:Wyniki analizy wariancji dla zmiennej Amount",
     col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
     digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
   ) %>%
@@ -577,7 +604,7 @@ interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Am
 dane_kompletne %>%
   anova_test(Amount ~ Rating*Gender) %>%
   kable(
-    caption = "Wpływ oceny i płci na wysokość wydatków",
+    caption = "Tabela 3: Wpływ oceny i płci na wysokość wydatków",
     col.names = c("Efekt", "Dfn", "DFd", "statystyka F", "p-value", "p<0,05", "ges"),
     digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
   ) %>%
@@ -607,7 +634,7 @@ dane_kompletne |>
   aov(Amount ~ Rating*Gender+Age, data = _) |>
   tidy() |>
 kable(
-    caption = "Wyniki analizy ANCOVA",
+    caption = "Tabela 4: Wyniki analizy ANCOVA",
     col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
     digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
   ) %>%
