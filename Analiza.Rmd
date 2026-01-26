@@ -194,15 +194,15 @@ Przykładowe pytania badawcze:
 
 3.  Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
 
-4.   Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
+4.  Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
 
-5.   Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
+5.  Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
 
 6.  Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
 
 7.  Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
-8.   Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+8.  Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
 
 9.  Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach
 
@@ -491,7 +491,6 @@ results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
 
 ```
 
-
 ```{r}
 # Heatmap vizualisation with ggplot2  -------------------------------------
 
@@ -513,14 +512,21 @@ korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
 corrplot(korelacja_macierz, method="color")
 ```
 
-## Wnioskowanie statystyczne
+# Wnioskowanie statystyczne
+
+## Analiza porównawcza kwot wydatków w podziale na kategorie
 
 ```{r}
 ggbetweenstats(
   data = dane_kompletne,
   x = Category,
-  y = Amount) 
+  y = Amount,
+  title = "Rozkład wydatków według kategorii",
+  xlab = "Kategoria produktu",
+  ylab = "Wydatki") 
 ```
+
+## Dwuskładnikowa analiza ANOVA
 
 ```{r}
 wyniki <- aov(Amount ~ Rating*Gender, data = dane_kompletne)
@@ -528,7 +534,7 @@ wyniki_tidy <- tidy(wyniki)
 
 wyniki_tidy %>%
   kable(
-    caption = "Wyniki analizy wariancji (ANOVA) dla zmiennej Amount",
+    caption = "Wyniki analizy wariancji dla zmiennej Amount",
     col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
     digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
   ) %>%
@@ -540,6 +546,8 @@ wyniki_tidy %>%
 
 ```
 
+## Analiza różnic w wydatkach między kobietami a mężczyznami względem ocen
+
 ```{r}
 interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Amount,
                  xlab = "Ocena zakupu",
@@ -547,16 +555,25 @@ interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Am
                  trace.label = "Płeć",
                  col = c("blue", "pink"),
                  lty = 1,
-                 lwd = 2) 
+                 lwd = 2,
+) 
 ```
 
+## Analiza wariancji wpływu oceny i płci na wysokość wydatków
+
 ```{r}
-
-
 dane_kompletne %>%
   anova_test(Amount ~ Rating*Gender) %>%
-  kbl() %>%
-  kable_styling(bootstrap_options = c("striped", "hover"))
+  kable(
+    caption = "Wpływ oceny i płci na wysokość wydatków",
+    col.names = c("Efekt", "Dfn", "DFd", "statystyka F", "p-value", "p<0,05", "ges"),
+    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "responsive"),
+    full_width = F,
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
                 
 ```
 
@@ -571,10 +588,20 @@ ggbarstats(
 )
 ```
 
+## Analiza ANCOVA
+
 ```{r}
 dane_kompletne |>
   aov(Amount ~ Rating*Gender+Age, data = _) |>
   tidy() |>
-  kbl() |>
-  kable_classic(full_width = FALSE, html_font = "Cambria")
+kable(
+    caption = "Wyniki analizy ANCOVA",
+    col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
+    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "responsive"),
+    full_width = F,
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
 ```
