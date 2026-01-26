@@ -226,14 +226,15 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
     y = "Udział procentowy",
     fill = "Grupa wiekowa"
   ) +
-  theme_minimal()
+  theme_minimal() +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
 ## Czy wiek wpływa na kwotę zakupu?
 
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
-  geom_col(fill = "#F8766D") +
+  geom_col(fill = "#6094DB") +
   xlab("Wiek") +
   ylab("Kwota zakupu") +
   ggtitle("Kwota zakupu w zależności od wieku") +
@@ -289,14 +290,15 @@ ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
   geom_bar(position = "dodge") +
   xlab("Metoda płatności") +
   ggtitle("Preferencje dotyczące metod płatności w zależności od grupy wiekowej") +
-  theme_light()
+  theme_light() +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
 ```{r warning=FALSE}
 ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_col(fill = "#00BFC4") +
+  geom_col(fill = "#6094DB") +
   xlab("Wydatki") +
   ylab("Rodzaj wysyłki") +
   ggtitle("Rodzaj wysyłki w zależności od wydanej kwoty") +
@@ -305,7 +307,7 @@ ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
 dane_kompletne$Shipping <- factor(dane_kompletne$Shipping)
 
 ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_boxplot(fill = "#F8766D") 
+  geom_boxplot(fill = "#DB6E60") 
 ```
 
 ## Czy większa liczba klientów wpływa na wyższe
@@ -341,7 +343,14 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
   xlab("Ocena") +
   ylab("Liczba poprzednich zakupów") +
   ggtitle("Liczba poprzednich zakupów w zależności od oceny") +
-  theme_light()
+  theme_light() +
+  scale_fill_manual(values = c(
+    "Very Low" = "#687586", 
+    "Low" = "#5C504F", 
+    "Medium" = "#6094DB", 
+    "High" = "#DB6E60",   # Dodatkowy kolor dla zachowania spójności
+    "Very High" = "#C1DB60" # Dodatkowy kolor (szary)
+  ))
   
 ```
 
@@ -351,8 +360,8 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
 ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#FFB6C1",
-    high = "#DB7093",
+    low = "#6094DB",
+    high = "#2E4565",
     name = "Wartość"
   ) +
   theme_minimal()
@@ -361,7 +370,9 @@ ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   geom_bar(stat = "identity", position = "stack") + 
   labs(title = "Wykres słupkowy skumulowany (ggplot2)",
        x = "Kategoria", y = "Wartość", fill = "Podkategoria") +
-  theme_minimal()
+  theme_minimal() +
+    scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
+  
 ```
 
 ## Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
@@ -374,8 +385,8 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#90EE90", 
-                      high = "#228B22")
+  scale_fill_gradient(low = "#6094DB", 
+                      high = "#2E4565")
 
 
 ```
@@ -390,8 +401,8 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#FFB6C1", 
-                      high = "#DB7093")
+  scale_fill_gradient(low = "#ffd4cc", 
+                      high = "#DB6E60")
 
 
 ```
@@ -409,7 +420,7 @@ dane_mapa <- avg_rating_per_location %>%
 
 ggplotly(
 plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE) + 
-  scale_fill_continuous(low = "red", high = "green", name = "Średnia ocena", label = scales::comma) + 
+  scale_fill_continuous(low = "#DC143C", high = "#adfc03", name = "Średnia ocena", label = scales::comma) + 
   theme(legend.position = "right") +
   labs(title = "Średnia ocena zakupów w poszczególnych stanach"))
 
@@ -421,8 +432,8 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#FFB6C1",
-    high = "#DB7093",
+    low = "#6094DB",
+    high = "#2E4565",
     name = "Wartość") +
   theme_minimal()
 ```
@@ -497,7 +508,7 @@ results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
 g <- ggplot(results, aes(variable_x, variable_y)) +
   geom_tile(aes(fill = v_cramer), colour = "black") +
   theme(axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_gradient(low = "white", high = "steelblue") +
+  scale_fill_gradient(low = "white", high = "#6094DB") +
   theme_bw() + xlab(NULL) + ylab(NULL) +
   theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
   ggtitle("Cramer's V heatmap")
@@ -516,14 +527,15 @@ corrplot(korelacja_macierz, method="color")
 
 ## Analiza porównawcza kwot wydatków w podziale na kategorie
 
-```{r}
+```{r warning=FALSE}
 ggbetweenstats(
   data = dane_kompletne,
   x = Category,
   y = Amount,
   title = "Rozkład wydatków według kategorii",
   xlab = "Kategoria produktu",
-  ylab = "Wydatki") 
+  ylab = "Wydatki") +
+  scale_colour_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
 ## Dwuskładnikowa analiza ANOVA
@@ -542,7 +554,7 @@ wyniki_tidy %>%
     bootstrap_options = c("striped", "hover", "responsive"),
     full_width = F,
   ) %>%
-  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
+  row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
 
 ```
 
@@ -553,7 +565,7 @@ interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Am
                  xlab = "Ocena zakupu",
                  ylab = "Kwota zakupu",
                  trace.label = "Płeć",
-                 col = c("blue", "pink"),
+                 col = c("#DB6E60", "#6094DB"),
                  lty = 1,
                  lwd = 2,
 ) 
@@ -573,19 +585,19 @@ dane_kompletne %>%
     bootstrap_options = c("striped", "hover", "responsive"),
     full_width = F,
   ) %>%
-  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
+  row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
                 
 ```
 
 ## Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
 
-```{r}
+```{r warning=FALSE}
 ggbarstats(
   data = dane_kompletne,
   x = Gender,
   y = Category,
-  bf.message = FALSE
-)
+  bf.message = FALSE) +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60"))
 ```
 
 ## Analiza ANCOVA
@@ -603,5 +615,5 @@ kable(
     bootstrap_options = c("striped", "hover", "responsive"),
     full_width = F,
   ) %>%
-  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
+  row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
 ```
