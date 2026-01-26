@@ -34,9 +34,19 @@ library(knitr)
 library(kableExtra)
 library(misty)
 library(rstatix)
+library(usmap)
+library(plotly)
+library(psych)
+library(qwraps2)
+library(EnvStats)
+library(data.table) # data mgmt
+library(gtools) # combination
+library(ggplot2) # graphics
+library(plotly) # interactive graphics
+library(corrplot)
 ```
 
-```{r}
+```{r, include=FALSE}
 dane <- rename(dane, 
     ID = Customer.ID,
     Item = Item.Purchased,
@@ -102,7 +112,7 @@ naniar::vis_miss(dane)
 
 Wizualizacja połączeń w brakach danych:
 
-```{r}
+```{r, warning=FALSE}
 naniar::gg_miss_upset(dane)
 ```
 
@@ -134,7 +144,6 @@ naniar::vis_miss(dane_imp)
 dane_kompletne <- dane_imp[,1:18]
 #sprawdzenie czy dane_kompletne nie zawierają braków danych
 vis_miss(dane_kompletne)
-view(dane_kompletne)
 ```
 
 ```{r, include=FALSE}
@@ -224,7 +233,7 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
 
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
-  geom_col() +
+  geom_col(fill = "#F8766D") +
   xlab("Wiek") +
   ylab("Kwota zakupu") +
   ggtitle("Kwota zakupu w zależności od wieku") +
@@ -285,19 +294,18 @@ ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
-```{r}
+```{r warning=FALSE}
 ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_col() +
+  geom_col(fill = "#00BFC4") +
   xlab("Wydatki") +
   ylab("Rodzaj wysyłki") +
   ggtitle("Rodzaj wysyłki w zależności od wydanej kwoty") +
   theme_light()
 
-str(dane_kompletne$Shipping)
 dane_kompletne$Shipping <- factor(dane_kompletne$Shipping)
 
 ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_boxplot() 
+  geom_boxplot(fill = "#F8766D") 
 ```
 
 ## Czy większa liczba klientów wpływa na wyższe
@@ -324,7 +332,7 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 
 ## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
 
-```{r, include=FALSE}
+```{r}
 dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
                 breaks=c(-Inf, 1, 2, 3, 4, Inf),
                 labels=c("Very Low", "Low", "Medium", "High", "Very High"))
@@ -343,8 +351,8 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
 ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#fde0ef",
-    high = "#7a0177",
+    low = "#FFB6C1",
+    high = "#DB7093",
     name = "Wartość"
   ) +
   theme_minimal()
@@ -366,8 +374,8 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#fde0ef", 
-                      high = "#7a0177")
+  scale_fill_gradient(low = "#90EE90", 
+                      high = "#228B22")
 
 
 ```
@@ -382,19 +390,15 @@ dane_kompletne %>%
              fill = n)) +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#fde0ef", 
-                      high = "#7a0177")
+  scale_fill_gradient(low = "#FFB6C1", 
+                      high = "#DB7093")
 
 
 ```
 
-# Średnia ocen zakupów w poszczególnych stanach
+## Średnia ocen zakupów w poszczególnych stanach
 
-```{r}
-library(usmap)
-library(plotly)
-
-
+```{r warning=FALSE}
 avg_rating_per_location <- dane_kompletne %>%
   group_by(Location) %>%
   summarize(Srednia = mean(Rating))
@@ -417,18 +421,17 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#fde0ef",
-    high = "#7a0177",
+    low = "#FFB6C1",
+    high = "#DB7093",
     name = "Wartość") +
   theme_minimal()
 ```
 
+# Analiza opisowa
+
 ## Statystyki opisowe zmiennych ilościowych
 
-```{r}
-library(psych)
-library(qwraps2)
-library(EnvStats)
+```{r warning=FALSE}
 raport <-
   list("Cena" =
        list("Min"= ~ min(Amount),
@@ -452,11 +455,7 @@ knitr::kable(tabela,
 
 ## Korelacje zmiennych jakościowych
 
-```{r}
-library(data.table) # data mgmt
-library(gtools) # combination
-library(ggplot2) # graphics
-library(plotly) # interactive graphics
+```{r, include=FALSE, warning=FALSE}
 # Cramer's V calculation --------------------------------------------------
 
 nowe_dane <- dane_kompletne[,c(3,4,5,7,8,9,10,12,13,14,15,17,18)]
@@ -490,8 +489,10 @@ v_cramer_all <- function(cat_var, df){
 
 results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
 
+```
 
 
+```{r}
 # Heatmap vizualisation with ggplot2  -------------------------------------
 
 g <- ggplot(results, aes(variable_x, variable_y)) +
@@ -507,8 +508,7 @@ ggplotly(g)
 
 ## Korelacja zmiennych ilościowych
 
-```{r}
-library(corrplot)
+```{r warning=FALSE}
 korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
 corrplot(korelacja_macierz, method="color")
 ```
@@ -524,7 +524,20 @@ ggbetweenstats(
 
 ```{r}
 wyniki <- aov(Amount ~ Rating*Gender, data = dane_kompletne)
-summary(wyniki)
+wyniki_tidy <- tidy(wyniki)
+
+wyniki_tidy %>%
+  kable(
+    caption = "Wyniki analizy wariancji (ANOVA) dla zmiennej Amount",
+    col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
+    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "responsive"),
+    full_width = F,
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#F8766D") 
+
 ```
 
 ```{r}
