@@ -166,7 +166,7 @@ theme(
     plot.margin = margin(t = 60, r = 10, b = 10, l = 10),
     plot.title = element_text(hjust = 0, face = "bold", size = 14),
   ) +
-  labs(title = "Analiza kompletności danych")
+  labs(title = "Analiza braków danych")
 ```
 
 ```{r, include=FALSE}
@@ -213,7 +213,11 @@ barplot(cf)
 
 # Wizualizacja danych
 
-Przykładowe pytania badawcze:
+Wizualizacja danych stanowi istotny element procesu analizy danych, umożliwiający przejrzyste i intuicyjne przedstawienie informacji zawartych w zbiorze danych.
+
+W niniejszym rozdziale zaprezentowano wybrane metody wizualizacji danych wykorzystane w celu lepszego zrozumienia analizowanych zjawisk.
+
+W ramach przeprowadzonej analizy sformułowano następujące pytania badawcze:
 
 1.  Czy wiek konsumentów wpływa na wybór kategorii zakupionych przedmiotów?
 
@@ -223,21 +227,26 @@ Przykładowe pytania badawcze:
 
 4.  Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
 
-5.  Czy klienci ze statusem subskrypcji mają wyższą częstotliwość zakupów i kwotę zakupu w porównaniu do klientów bez subskrypcji?
+5.  Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
-6.  Czy zastosowanie rabatu prowadzi do wyższej kwoty zakupu?
+6.  Czy większa liczba klientów wpływa na wyższą sprzedaż w poszczególnych lokalizacjach?
 
-7.  Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
+7.  Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
 
-8.  Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+8.  Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
 
-9.  Czy posiadanie zniżki wpływa na całkowitą sprzedaż w poszczególnych lokalizacjach
+9.  Czy sezon wpływa na wartość zakupów w poszczególnych kategoriach?
 
 10. Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
 
 11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
 
-## Czy wiek wpływa na kategorię zakupionych przedmiotów?
+12. Jaka jest średnia ocen zakupów dla poszczególnych stanów?
+
+13. Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu?
+
+
+## Czy wiek konsumentów wpływa na wybór kategorii zakupionych przedmiotów?
 
 ```{r}
 dane_kompletne$age_group <- cut(dane_kompletne$Age, 
@@ -257,7 +266,7 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
-## Czy wiek wpływa na kwotę zakupu?
+## Czy wiek konsumentów wpływa na wysokość kwoty zakupu?
 
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
@@ -304,7 +313,7 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
   labs(
     title = "Najpopularniejsze kombinacje rozmiarów i kolorów w kategoriach",
     x = "Rozmiar",
-    y = "Kategoria",
+    y = "Ilość obserwacji",
     fill = "Kolor"
   ) +
   theme_minimal()
@@ -315,7 +324,10 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
   geom_bar(position = "dodge") +
-  xlab("Metoda płatności") +
+  labs(
+    x = "Metoda płatności",
+    y = "Liczba klientów",
+    fill = "Wiek") +
   ggtitle("Preferencje dotyczące metod płatności w zależności od grupy wiekowej") +
   theme_light() +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
@@ -334,10 +346,12 @@ ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
 dane_kompletne$Shipping <- factor(dane_kompletne$Shipping)
 
 ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_boxplot(fill = "#DB6E60") 
+  geom_boxplot(fill = "#DB6E60") +
+  xlab("Wydatki") +
+  ylab("Rodzaj wysyłki") 
 ```
 
-## Czy większa liczba klientów wpływa na wyższe
+## Czy większa liczba klientów wpływa na wyższą sprzedaż w poszczególnych lokalizacjach?
 
 ```{r}
 dane_kompletne <- dane_kompletne %>%
@@ -367,16 +381,18 @@ dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
                 labels=c("Very Low", "Low", "Medium", "High", "Very High"))
 ggplot(data = dane_kompletne, aes(y=Previous.Purchases)) +
 geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
-  xlab("Ocena") +
-  ylab("Liczba poprzednich zakupów") +
+  labs(
+  x = "Ocena",
+  y = "Liczba poprzednich zakupów",
+  fill = "Ocena") +
   ggtitle("Liczba poprzednich zakupów w zależności od oceny") +
   theme_light() +
   scale_fill_manual(values = c(
     "Very Low" = "#687586", 
     "Low" = "#5C504F", 
     "Medium" = "#6094DB", 
-    "High" = "#DB6E60",   # Dodatkowy kolor dla zachowania spójności
-    "Very High" = "#C1DB60" # Dodatkowy kolor (szary)
+    "High" = "#DB6E60",   
+    "Very High" = "#C1DB60" 
   ))
   
 ```
@@ -391,12 +407,22 @@ ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
     high = "#2E4565",
     name = "Wartość"
   ) +
+  labs(
+    title = "Wartość zakupów w poszczególnych kategoriach i lokalizacjach",
+    x = "Kategoria",
+    y = "Lokalizacja"
+  ) +
   theme_minimal()
 
+```
+
+## Czy sezon wpływa na wartość zakupów w poszczególnych kategoriach?
+
+```{r}
 ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
   geom_bar(stat = "identity", position = "stack") + 
-  labs(title = "Wykres słupkowy skumulowany (ggplot2)",
-       x = "Kategoria", y = "Wartość", fill = "Podkategoria") +
+  labs(title = "Wartość zakupów w poszczególnych kategoriach z podziałem na sezony",
+       x = "Kategoria", y = "Wartość", fill = "Sezon") +
   theme_minimal() +
     scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
   
@@ -410,6 +436,10 @@ dane_kompletne %>%
   ggplot(aes(x = Gender, 
              y = Category,
              fill = n)) +
+  labs(title = "Zakupy w poszczególnych kategoriach z podziałem na płeć",
+       x = "Płeć",
+       y = "Kategoria",
+       fill = "Liczba zakupów") +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
   scale_fill_gradient(low = "#6094DB", 
@@ -426,6 +456,10 @@ dane_kompletne %>%
   ggplot(aes(x = Subscription, 
              y = Frequency,
              fill = n)) +
+  labs(title = "Częstotliwość zakupów w zależności od posiadania subskrypcji",
+       x = "Posiadanie subskrypcji",
+       y = "Częstotliwość zakupów",
+       fill = "Liczba zakupów") +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
   scale_fill_gradient(low = "#ffd4cc", 
@@ -458,6 +492,11 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 ```{r}
 ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
   geom_tile(color = "white") +
+  labs(
+    title = "Wartość zakupów w poszczególnych kategoriach i sezonach",
+    x = "Sezon",
+    y = "Kategoria"
+  ) +
   scale_fill_gradient(
     low = "#6094DB",
     high = "#2E4565",
