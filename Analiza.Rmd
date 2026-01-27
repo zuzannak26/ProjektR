@@ -45,6 +45,7 @@ library(ggplot2) # graphics
 library(plotly) # interactive graphics
 library(corrplot)
 library(VIM)
+library(patchwork)
 ```
 
 ```{r, include=FALSE}
@@ -74,7 +75,7 @@ Przeprowadzona analiza ma na celu udzielenie odpowiedzi na sformułowane pytania
 
 ## Opis danych
 
-Analizowany zbiór danych zawiera 3900 obserwacji i 18 zmiennych.
+Analizowany zbiór danych zawiera 3900 obserwacji i 18 zmiennych. W tabeli poniżej zostały przedstawione wszystkie zmienne wraz z informacjami na temat typu zmiennej, opisem i wartościami jakie przyjmuje.
 
 ```{r}
 data_dict <- data.frame(
@@ -109,38 +110,43 @@ Pierwszym etapem przeprowadzonej analizy danych było zweryfikowanie kompletnoś
 
 Przeprowadzona analiza wykazała, że w badanym zbiorze danych występuje `r n_miss(dane)` obserwacji zawierających braki danych, co stanowi `r pct_miss(dane)`% wszystkich obserwacji, natomiast `r n_complete(dane)` obserwacji stanowią dane kompletne. W kolejnym kroku dokonano szczegółowej analizy braków danych wraz z badaniem struktury oraz wzorców występowania braków danych, w celu ustalenia, czy braki pojawiają się w sposób losowy, czy też wykazują określone zależności pomiędzy zmiennymi. Identyfikacja wzorców braków danych umożliwia podjęcie decyzji dotyczących dalszego postępowania z brakującymi obserwacjami, takich jak ich imputacja.
 
-```{r, include=FALSE}
-#to chyba można usunąć
-miss_var_summary(dane)
-procent <- prop_complete_var(dane)*100
-```
 
-```{r, include=FALSE}
-naniar::vis_miss(dane)
-```
-
-Wizualizacja połączeń w brakach danych:
-
-```{r, warning=FALSE}
-naniar::gg_miss_upset(dane)
-```
 
 ### Wzorzec braków danych
 
-```{r, include=FALSE}
-library(finalfit)
-missing_pattern(dane)
+Pierwszym krokiem w analizie wzorców braków danych jest graficzne przedstawienie braków danych. Poniższy wykres wskazuje, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych: wiek (Age), wydatki (Amount oraz sezon (Season), co sugeruje, że braki danych nie są całkowicie losowe.
+
+```{r, warning=FALSE}
+naniar::gg_miss_upset(dane) 
+
 ```
+W celu lepszego zobrazowania powiązań między brakami danych w trzech kluczowych zmiennych, zestawiono ze sobą odpowiednie wykresy. Analiza wizualna pozwala stwierdzić, że braki w informacjach dotyczących wieku oraz wydanej kwoty występują niemal wyłącznie w przypadku zakupów dokonywanych jesienią. Świadczy to o tym, że w tej kategorii braki nie mają charakteru losowego.
 
-Powyższy wykres obrazujący braki w danych wskazuje, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych: wiek (Age), wydatki (Purchase_Amount_USD) oraz sezon (Season), co potwierdza, że braki danych nie są całkowicie losowe.
+Z kolei analiza relacji pomiędzy samym wiekiem a wydaną kwotą pokazuje, że braki danych są rozproszone równomiernie: występują w całym zakresie kwot oraz u osób w każdym przedziale wiekowym. Oznacza to brak korelacji w występowaniu braków między tymi dwiema zmiennymi.
 
-```{r}
-library(ggplot2)
-ggplot(dane, aes(x=Season, y=Age)) +
+
+```{r warning=FALSE}
+
+p1 <- ggplot(dane, aes(x=Season, y=Age)) +
   geom_miss_point() +
-  labs(title="Wzorce braków danych",
+  labs(title="Season i Age",
        x="Season",
-       y="Age")
+       y="Age") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p2 <- ggplot(dane, aes(x=Season, y=Amount)) +
+  geom_miss_point() +
+  labs(title="Season i Amount",
+       x="Season",
+       y="Amount") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p3 <- ggplot(dane, aes(x=Age, y=Amount)) +
+  geom_miss_point() +
+  labs(title="Age i Amount",
+       x="Age",
+       y="Amount")
+(p1 + p2) / p3
 
 ```
 
@@ -156,7 +162,7 @@ dane_kompletne <- dane_imp[,1:18]
 
 ```
 
-Po przeprowadzonej imputacji metodą hotdeck, zbiór danych został uzupełniony o brakujące wartości, co pozwoliło na uzyskanie kompletnego zestawu danych do dalszych analiz.
+Po przeprowadzonej imputacji metodą hotdeck, zbiór danych został uzupełniony o brakujące wartości, co pozwoliło na uzyskanie kompletnego zestawu danych do dalszych analiz. Jak można zauważyć na poniższym wykresie, po zastosowaniu tej metody, zbiór danych nie zawiera już braków danych, co umożliwia przeprowadzenie dalszych analiz bez konieczności uwzględniania problemu niekompletności danych.
 
 ```{r}
 #sprawdzenie czy dane_kompletne nie zawierają braków danych
@@ -169,9 +175,16 @@ theme(
   labs(title = "Analiza braków danych")
 ```
 
+W celu sprawdzenie, czy zastosowana metoda imputacji hotdeck była skuteczna, przeprowadzono wizualną ocenę zgodności rozkładu zmiennych Age, Season i Amount  przed i po imputacji. Poniższy wykres przedstawia porównanie rozkładów zmiennych w oryginalnym zbiorze danych z brakami oraz w zbiorze danych po imputacji. Analiza wizualna wskazuje, że rozkład zmiennych  po imputacji jest zbliżony do rozkładu oryginalnego, co sugeruje, że metoda hotdeck skutecznie zachowała charakterystyki statystyczne tej zmiennej.
+
 ```{r, include=FALSE}
-mice::stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
-#Dopisać do pozostałych braków danych 
+#poprawić
+p4 <- stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
+p5 <- stripplot(dane_imp, Amount ~ Amount_imp, pch=20, cex=1.2)
+p6 <- stripplot(dane_imp, Season ~ Season_imp, pch=20, cex=1.2)
+
+(p4 + p5) / p6
+
 ```
 
 ## Walidacja danych
@@ -210,6 +223,7 @@ cf <- confront(dane_kompletne, rules, key="ID")
 barplot(cf)
 
 ```
+Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze danych spełniają przyjęte kryteria poprawności dla poszczególnych zmiennych. Oznacza to, że dane są spójne i zgodne z założeniami merytorycznymi, co pozwala na ich dalsze wykorzystanie w analizie bez konieczności wprowadzania dodatkowych korekt czy eliminacji obserwacji.
 
 # Wizualizacja danych
 
@@ -248,6 +262,8 @@ W ramach przeprowadzonej analizy sformułowano następujące pytania badawcze:
 
 ## Czy wiek konsumentów wpływa na wybór kategorii zakupionych przedmiotów?
 
+Aby odpowiedzieć na to pytanie badawcze przedstawiono skumulowany wykres słupkowy ilustrujący rozkład kategorii zakupionych produktów w podziale na grupy wiekowe. Grupy wiekowe zostały zdefiniowane jako: 18-29, 30-44, 45-59 oraz 60+. Wykres ten pozwala na wizualne porównanie udziału procentowego poszczególnych kategorii w różnych grupach wiekowych, co umożliwia ocenę wpływu wieku na wybór kategorii zakupionych przedmiotów.
+
 ```{r}
 dane_kompletne$age_group <- cut(dane_kompletne$Age, 
                            breaks = c(18, 30, 45, 60, Inf), 
@@ -266,8 +282,20 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
+Powyższy wykres został uzupełniony o analizę statystyczną, która umożliwia ocenę istotności różnic w rozkładzie kategorii zakupionych produktów pomiędzy grupami wiekowymi. Wyniki analizy statystycznej wskazały na brak istotnych różnic pomiędzy kategorią a wiekiem. Wartość p dla testu chi-kwadrat, wyniosła 0.20, co jest znacznie powyżej przyjętego poziomu istotności, w związku z tym nie ma podstaw do odrzucenia hipotezy zerowej. 
+
+```{r warning=FALSE}
+ggbarstats(
+  data = dane_kompletne,
+  x = age_group,
+  y = Category,
+  bf.message = FALSE) +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
+```
+
 ## Czy wiek konsumentów wpływa na wysokość kwoty zakupu?
 
+Do zbadnia wpływu wieku konsumentów na wysokość kwoty zakupu wykorzystano wykres słupkowy przedstawiający średnią wartość zakupu w poszczególnych grupach wiekowych. Wykres ten pozwala na wizualne porównanie średnich kwot zakupów pomiędzy różnymi grupami wiekowymi, co umożliwia ocenę wpływu wieku na wysokość wydatków konsumenckich.
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   geom_col(fill = "#6094DB") +
@@ -275,6 +303,17 @@ ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   ylab("Kwota zakupu") +
   ggtitle("Kwota zakupu w zależności od wieku") +
   theme_light()
+```
+
+```{r}
+ggbetweenstats(
+  data = dane_kompletne,
+  x = age_group,
+  y = Amount,
+  title = "Rozkład wydatków według kategorii",
+  xlab = "Grupa wiekowa",
+  ylab = "Wydatki") +
+  scale_colour_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
 ## Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
@@ -367,9 +406,9 @@ dane_kompletne <- dane_kompletne %>%
 
 ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
   geom_point() +
-  scale_x_continuous(name = "Sprzedaż w poszczególnych lokalizacjach") +
+  scale_x_continuous(name = "Całkowita sprzedaż w poszczególnych lokalizacjach") +
   scale_y_continuous(name = "Liczba klientów") +
-  ggtitle("Całowita sprzedaż w poszczególnych lokalizacjach") +
+  ggtitle("Całowita sprzedaż w relacji do liczby klientów") +
   theme_light()
 ```
 
