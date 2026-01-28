@@ -46,6 +46,8 @@ library(plotly) # interactive graphics
 library(corrplot)
 library(VIM)
 library(patchwork)
+library(gridExtra)
+library(lattice)
 ```
 
 ```{r, include=FALSE}
@@ -183,7 +185,7 @@ p4 <- stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
 p5 <- stripplot(dane_imp, Amount ~ Amount_imp, pch=20, cex=1.2)
 p6 <- stripplot(dane_imp, Season ~ Season_imp, pch=20, cex=1.2)
 
-(p4 + p5) / p6
+grid.arrange(p4, p5, p6, ncol = 2)
 
 ```
 
