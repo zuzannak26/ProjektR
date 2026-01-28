@@ -180,12 +180,12 @@ theme(
 W celu sprawdzenie, czy zastosowana metoda imputacji hotdeck była skuteczna, przeprowadzono wizualną ocenę zgodności rozkładu zmiennych Age, Season i Amount  przed i po imputacji. Poniższy wykres przedstawia porównanie rozkładów zmiennych w oryginalnym zbiorze danych z brakami oraz w zbiorze danych po imputacji. Analiza wizualna wskazuje, że rozkład zmiennych  po imputacji jest zbliżony do rozkładu oryginalnego, co sugeruje, że metoda hotdeck skutecznie zachowała charakterystyki statystyczne tej zmiennej.
 
 ```{r, include=FALSE}
-#poprawić
-p4 <- stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2)
-p5 <- stripplot(dane_imp, Amount ~ Amount_imp, pch=20, cex=1.2)
+
+p4 <- stripplot(dane_imp, Age ~ Age_imp, pch=20, cex=1.2, scales=list(y=list(at=seq(0, 70, by=10))))
+p5 <- stripplot(dane_imp, Amount ~ Amount_imp, pch=20, cex=1.2,scales=list(y=list(at=seq(0, 100, by=10))))
 p6 <- stripplot(dane_imp, Season ~ Season_imp, pch=20, cex=1.2)
 
-grid.arrange(p4, p5, p6, ncol = 2)
+grid.arrange(p4, p5, p6, ncol = 3)
 
 ```
 
@@ -297,7 +297,7 @@ ggbarstats(
 
 ## Czy wiek konsumentów wpływa na wysokość kwoty zakupu?
 
-Do zbadnia wpływu wieku konsumentów na wysokość kwoty zakupu wykorzystano wykres słupkowy przedstawiający średnią wartość zakupu w poszczególnych grupach wiekowych. Wykres ten pozwala na wizualne porównanie średnich kwot zakupów pomiędzy różnymi grupami wiekowymi, co umożliwia ocenę wpływu wieku na wysokość wydatków konsumenckich.
+Do zbadani wpływu wieku konsumentów na wysokość kwoty zakupu wykorzystano wykres słupkowy przedstawiający wartość zakupu w poszczególnych grupach wiekowych. Wykres ten pozwala na wizualne porównanie średnich kwot zakupów pomiędzy różnymi grupami wiekowymi, co umożliwia ocenę wpływu wieku na wysokość wydatków konsumenckich. Grupy "30-44" i "45-59" przeciętnie wydawały najwięcej pieniędzy. Osoby powyżej 60 roku życia najmniej. 
 ```{r}
 ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   geom_col(fill = "#6094DB") +
@@ -306,6 +306,7 @@ ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   ggtitle("Kwota zakupu w zależności od wieku") +
   theme_light()
 ```
+Przeprowadzona analiza statystyczna wykazała, że wiek konsumentów nie ma istotnego wpływu na wysokość ich wydatków. Średnie wydatki w każdej z grup wiekowych są do siebie zbliżone, około 60 doloarów, a rozkłady wydatków charakteryzują się niemal identycznym rokzładem.
 
 ```{r}
 ggbetweenstats(
@@ -319,6 +320,8 @@ ggbetweenstats(
 ```
 
 ## Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
+
+Wykres przedstawia cztery kategorie: Accessories, Clothing, Footwear oraz Outerwear. Zastosowano wykres słupkowy wielokrotny, w którym na osi X znajdują się dostępne rozmiary (L, M, S, XL), natomiast kolory słupków odpowiadają rzeczywistej kolorystyce produktów. Najbardziej rozbudowaną kategorią są ubrania (Clothing), liczba obserwacji dla poszczególnych kombinacji jest najwyższa, sięgając ponad 40 sztuk dla wybranych kolorów w rozmiarze M. We wszystkich kategoriach, szczególnie w odzieży i akcesoriach, rozmiar M wyraźnie dominuje nad pozostałymi. Rozmiary S oraz L prezentują zbliżone do siebie udziały, podczas gdy rozmiar XL jest najrzadziej reprezentowany. Zbiór danych charakteryzuje się bardzo dużą paletą barw.W kategorii Clothing widać dużą popularność kolorów jaskrawych i nasyconych. Kategoria Footwear oraz Outerwear wykazuje znacznie mniejszą liczebność produktów, a rozkład kolorów jest bardziej wyrównany, a nieznacznie dominujace kolory należa do bardziej stonowanych.
 
 ```{r}
 ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
@@ -360,7 +363,10 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
   theme_minimal()
 ```
 
+
 ## Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
+
+Preferencje kielientów dotyczące metod płatności zostały przedstawione na wykresie słupkowym wielokrotnym, gdzie na osi X znajdują się różne metody płatności, a kolory słupków odpowiadają grupom wiekowym klientów. Klienci korzystają z sześciu różnych metod płatności: przelewu bankowego (Bank Transfer), gotówki (Cash), karty kredytowej (Credit Card), karty debetowej (Debit Card), systemu PayPal oraz Venmo.W niemal każdej kategorii płatności najliczniejszą grupę stanowią osoby w przedziałach wiekowych 30-44 oraz 45-59. Osoby powyżej 60. roku życia wykazują najniższą liczebność we wszystkich rodzajach płatności. Przy czym najczęściej wybierają kartę kredytową albo gotówkę. 
 
 ```{r}
 ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
@@ -373,7 +379,16 @@ ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
   theme_light() +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
+Wyniki testów przeprowadzonych dla całego zestawienia wskazują na brak istotnych różnic w preferencjach płatniczych pomiędzy badanymi grupami wiekowymi. Wartość p dla testu chi-kwadrat wyniosła 0.32, co jest powyżej przyjętego poziomu istotności, co sugeruje brak podstaw do odrzucenia hipotezy zerowej o braku związku między wiekiem a wyborem metody płatności. Jednak rozkład wewnątrz grup jest bardziej zróżnicowany. Niskie wartości $p$ wskazują, że wewnątrz konkretnych metod płatności udziały grup wiekowych istotnie różnią się od założonego rozkładu. 
 
+```{r}
+ggbarstats(
+  data = dane_kompletne,
+  x = age_group,
+  y = Payment,
+  bf.message = FALSE) +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
+```
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
 ```{r warning=FALSE}
@@ -394,7 +409,9 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
 
 ## Czy większa liczba klientów wpływa na wyższą sprzedaż w poszczególnych lokalizacjach?
 
+Korelacja między  całkowitą sprzedarząą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi 0.88. Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, "średnie" wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
 ```{r}
+library(ggpubr)
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
   mutate(num_clients = n()) %>%
@@ -408,6 +425,8 @@ dane_kompletne <- dane_kompletne %>%
 
 ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
   geom_point() +
+  geom_smooth(method = "lm", color = "blue", se = TRUE) +
+  stat_cor(method = "pearson", label.x = 4000, label.y = 95) +
   scale_x_continuous(name = "Całkowita sprzedaż w poszczególnych lokalizacjach") +
   scale_y_continuous(name = "Liczba klientów") +
   ggtitle("Całowita sprzedaż w relacji do liczby klientów") +
@@ -440,11 +459,12 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
 
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
 
-```{r}
+Różnice w kategoriach i kwotach zakupów w zależności od lokalizacji zostały przedstawione na wykresie typu heatmap. Na osi X znajdują się cztery kategorie produktów, natomiast na osi Y lokalizacje. Kolory na wykresie reprezentują wartość zakupów, gdzie jaśniejsze odcienie wskazują niższe wartości, a ciemniejsze wyższe. Odzież wykazuje najwyższe zagęszczenie ciemnych pól w niemal wszystkich stanach, co sugeruje, że jest to najbardziej popularna kategioria. Obówie (Footwear) i odzież wierzchnia (Outwear) są kategoriamii na które przebadani konsumenci wydali mniejsze kwoty, wskazuje na to dominacja jaśniajszych kolorów. 
+```{r, fig.height=12, fig.width=8}
 ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
   geom_tile(color = "white") +
   scale_fill_gradient(
-    low = "#6094DB",
+    low = "#bce0ee",
     high = "#2E4565",
     name = "Wartość"
   ) +
@@ -459,14 +479,48 @@ ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
 
 ## Czy sezon wpływa na wartość zakupów w poszczególnych kategoriach?
 
+Wpływ pory roku na wartość zakupów w poszczególnych kategoriach został przedstawiony za pomocą wykresu interakcji. Według wykresu na obuwie badani konsumenci wydają najwięcej pieniędzy na jesień. Ta kategoria charakteryzuje się również dużym zróżnicowaniem pomiędzy porami roku. Na akcesorie największa suma pieniędzy zostaje przeznaczona na wiosnę. Natomiast ubrania charakteryzują się odrotnym trendem do akcesoriów. Odzież wierzchnia to kategoria o stosunkowo najniższych wahaniach. Choć jej wartość rośnie od wiosny do lata, przez resztę roku utrzymuje trend lekko spadkowy, osiągając najniższy poziom zimą. Wykres wyraźnie wskazuje na wpływ sezonowości na wartość zakupów w poszczególnych kategoriach. W celu sprawdzenia czy zaobserwowane różnice są istotne statystycznie została przeprowadzona test ANOVA. 
 ```{r}
-ggplot(dane_kompletne, aes(x=Category, y=Amount, fill = Season)) +
-  geom_bar(stat = "identity", position = "stack") + 
-  labs(title = "Wartość zakupów w poszczególnych kategoriach z podziałem na sezony",
-       x = "Kategoria", y = "Wartość", fill = "Sezon") +
+dane_interakcja <- dane_kompletne %>%
+  group_by(Season, Category) %>%
+  summarise(mean_amount = mean(Amount), .groups = 'drop')
+
+
+ggplot(dane_interakcja, aes(x = Season, y = mean_amount, color = Category, group = Category)) +
+  geom_point(size = 3) +
+  geom_line(size = 1.2) +
+  labs(title = "Czy sezon wpływa na wartość zakupów w kategoriach?",
+       x = "Pora roku",
+       y = "Średnia wartość zakupu",
+       color = "Kategoria produktu") +
   theme_minimal() +
-    scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
-  
+  theme(legend.position = "bottom") +
+  scale_x_discrete(limits = c("Spring", "Summer", "Fall", "Winter"))+
+  scale_color_manual(values = c("Accessories" = "#6094DB", 
+                                "Clothing" = "#DB6E60", 
+                                "Footwear" = "#C1DB60", 
+                                "Outerwear" = "#5C504F"))
+```
+
+Otrzymane wyniki analizy wariancji (ANOVA) wskazują na iistotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy rednio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na Amount, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych. 
+
+```{r}
+model_pory_roku <- aov(Amount ~ Season * Category, data = dane_kompletne)
+
+wyniki_tidy_pory_roku <- tidy(model_pory_roku)
+
+wyniki_tidy_pory_roku %>%
+  kable(
+    caption = "Tabela 1: Wyniki analizy wariancji dla zmiennej Amount",
+    col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
+    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "responsive"),
+    full_width = F,
+  ) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
+
 ```
 
 ## Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
@@ -483,7 +537,7 @@ dane_kompletne %>%
        fill = "Liczba zakupów") +
   geom_tile() +
   geom_label(aes(label = n), color = "white") +
-  scale_fill_gradient(low = "#6094DB", 
+  scale_fill_gradient(low = "#bce0ee", 
                       high = "#2E4565")
 
 
@@ -511,6 +565,7 @@ dane_kompletne %>%
 
 ## Średnia ocen zakupów w poszczególnych stanach
 
+Średnia ocen zakupów w poszczególnych stanach została przedstawiona na mapie Stanów Zjednoczonych. Kolory na mapie reprezentują średnią ocenę zakupów w danym stanie, gdzie odcienie czerwieni wskazują niższe średnie oceny, a odcienie zieleni wyższe. Regionami o najwyższej satysfakcji z zakupów to takie stany jak Teksas (TX), Wisconsin (WI) oraz Waszyngton (WA). Wyraźnie niższe oceny widoczne są w stanach Oklahoma (OK), Georgia (GA) oraz Wirginia Zachodnia (WV). Średnia w tych lokalizacjach zbliża się do dolnej granicy skali (3.6). Stany w centralnej części USA (np. Nebraska, Kansas) oraz na północnym wschodzie (np. Maine, Vermont) prezentują umiarkowany, stabilny poziom satysfakcji (kolory żółte i jasnozielone).
 ```{r warning=FALSE}
 avg_rating_per_location <- dane_kompletne %>%
   group_by(Location) %>%
@@ -528,22 +583,6 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 
 ```
 
-## Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu?
-
-```{r}
-ggplot(dane_kompletne, aes(x = Season, y = Category, fill = Amount)) +
-  geom_tile(color = "white") +
-  labs(
-    title = "Wartość zakupów w poszczególnych kategoriach i sezonach",
-    x = "Sezon",
-    y = "Kategoria"
-  ) +
-  scale_fill_gradient(
-    low = "#6094DB",
-    high = "#2E4565",
-    name = "Wartość") +
-  theme_minimal()
-```
 
 # Analiza opisowa
 
@@ -592,8 +631,8 @@ v_cramer_all <- function(cat_var, df){
   do.call(rbind,
           apply(cat_var_grid, 1, function(x){
             tmp <- as.character(x)
-            vec1 <- unlist(df[,tmp[1], with = FALSE])
-            vec2 <- unlist(df[,tmp[2], with = FALSE])
+            vec1 <- unlist(df[,tmp[1],])
+            vec2 <- unlist(df[,tmp[2],])
             
             data.table(
               variable_x = tmp[1],
