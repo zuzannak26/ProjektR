@@ -227,6 +227,60 @@ barplot(cf)
 ```
 Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze danych spełniają przyjęte kryteria poprawności dla poszczególnych zmiennych. Oznacza to, że dane są spójne i zgodne z założeniami merytorycznymi, co pozwala na ich dalsze wykorzystanie w analizie bez konieczności wprowadzania dodatkowych korekt czy eliminacji obserwacji.
 
+
+# Analiza opisowa
+
+## Statystyki opisowe zmiennych ilościowych
+
+DO POPRAWY
+
+```{r warning=FALSE}
+raport <-
+  list("Cena" =
+       list("Min"= ~ min(Amount),
+            "Max"= ~ max(Amount),
+            "Kwartyl dolny"= ~ quantile(Amount,0.25),
+            "Mediana"= ~ round(median(Amount),2),
+            "Kwartyl górny"= ~ quantile(Amount,0.75),
+            "Średnia"= ~ round(mean(Amount),2),
+            "Odch. std."= ~ round(sd(Amount),2),
+            "IQR"= ~ round(iqr(Amount),2),
+            "Odchylenie ćwiartkowe"=~round(iqr(Amount)/2,2),
+            "Odch. std. w %"=~round((sd(Amount)/mean(Amount)),2),
+            "Odch. ćwiartkowe w %"=~round((iqr(Amount)/median(Amount)),2),
+            "Skośność"=~round(skewness(Amount),2),
+            "Kurtoza"=~round(kurtosis(Amount),2)
+            ))
+tabela<-summary_table(dane_kompletne, summaries = raport, by = c("Location"))
+kbl(tabela, 
+    caption = "Analiza statystyczna wydatków w podziale na lokalizacje",
+    booktabs = TRUE, 
+    align = "c") %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE, 
+    position = "center",
+    font_size = 13
+  ) %>%
+  column_spec(1, bold = TRUE, border_right = TRUE) %>% # Wyróżnienie nazw statystyk
+  add_header_above(c(" " = 1, "Lokalizacje" = ncol(tabela)))
+```
+
+
+```{r warning=FALSE}
+library(gtsummary)
+dane_kompletne %>%
+  select(Age, Amount, Rating, Previous.Purchases) %>% # Wybierz swoje 3 zmienne ilościowe
+  tbl_summary(
+    statistic = list(all_continuous() ~ "{mean} ({sd}) [min - max]"),
+    digits = list(all_continuous() ~ 2),
+    label = list(Age ~ "Wiek", Amount ~ "Kwota", Rating ~ "Ocena", Previous.Purchases ~ "Kwota wydana na wcześniejszych zakupach")
+  ) %>%
+  bold_labels() %>%
+  modify_header(label = "**Zmienna ilościowa**") %>%
+  as_kable_extra()
+```
+
 # Wizualizacja danych
 
 Wizualizacja danych stanowi istotny element procesu analizy danych, umożliwiający przejrzyste i intuicyjne przedstawienie informacji zawartych w zbiorze danych.
@@ -584,33 +638,10 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 ```
 
 
-# Analiza opisowa
-
-## Statystyki opisowe zmiennych ilościowych
-
-```{r warning=FALSE}
-raport <-
-  list("Cena" =
-       list("Min"= ~ min(Amount),
-            "Max"= ~ max(Amount),
-            "Kwartyl dolny"= ~ quantile(Amount,0.25),
-            "Mediana"= ~ round(median(Amount),2),
-            "Kwartyl górny"= ~ quantile(Amount,0.75),
-            "Średnia"= ~ round(mean(Amount),2),
-            "Odch. std."= ~ round(sd(Amount),2),
-            "IQR"= ~ round(iqr(Amount),2),
-            "Odchylenie ćwiartkowe"=~round(iqr(Amount)/2,2),
-            "Odch. std. w %"=~round((sd(Amount)/mean(Amount)),2),
-            "Odch. ćwiartkowe w %"=~round((iqr(Amount)/median(Amount)),2),
-            "Skośność"=~round(skewness(Amount),2),
-            "Kurtoza"=~round(kurtosis(Amount),2)
-            ))
-tabela<-summary_table(dane_kompletne, summaries = raport, by = c("Location"))
-knitr::kable(tabela,
-  digits = 2)
-```
 
 ## Korelacje zmiennych jakościowych
+
+Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi jakościowymi za pomocą współczynnika Craméra V. Współczynnik ten mierzy siłę związku pomiędzy dwiema zmiennymi kategorycznymi, przyjmując wartości od 0 (brak związku) do 1 (pełna zależność). 
 
 ```{r, include=FALSE, warning=FALSE}
 # Cramer's V calculation --------------------------------------------------
