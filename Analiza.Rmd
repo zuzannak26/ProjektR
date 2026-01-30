@@ -252,47 +252,47 @@ Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze da
 
 ::: {style="text-align: justify;"}
 Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej.
-:::
-
-```{r warning=FALSE}
-raport <- list(
-  "Wydatki (USD)" = list(
-    "Min"                  = ~ min(Amount),
-    "Max"                  = ~ max(Amount),
-    "Kwartyl dolny"        = ~ quantile(Amount, 0.25),
-    "Mediana"              = ~ round(median(Amount), 2),
-    "Kwartyl górny"        = ~ quantile(Amount, 0.75),
-    "Średnia"              = ~ round(mean(Amount), 2),
-    "Odch. std."           = ~ round(sd(Amount), 2),
-    "IQR"                  = ~ round(IQR(Amount), 2),
-    "Odchylenie ćwiartkowe" = ~ round(IQR(Amount) / 2, 2),
-    "Odch. std. w %"       = ~ round((sd(Amount) / mean(Amount)) * 100, 2),
-    "Odch. ćwiartkowe w %" = ~ round((IQR(Amount) / median(Amount)) * 100, 2),
-    "Skośność"             = ~ round(skewness(Amount), 2),
-    "Kurtoza"              = ~ round(kurtosis(Amount), 2)
-  )
-)
-
-tabela_wynikowa <- summary_table(dane_kompletne, summaries = raport, by = "Category")
-
-kbl(tabela_wynikowa, 
-    caption = "Szczegółowa analiza statystyczna wydatków",
-    booktabs = TRUE, 
-    align = "c") %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "condensed"),
-    full_width = FALSE,
-    position = "center",
-    font_size = 13
-  ) %>%
-  column_spec(1, bold = TRUE, border_right = TRUE) %>%
-
-  add_header_above(c(" " = 1, "Kategorie produktów" = ncol(tabela_wynikowa) - 1))
-```
-
-::: {style="text-align: justify;"}
 Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ Mediana i Średnia mają pododne wartości. Odchylenia standardowe w przypadku Akcesorii, Ubrań i Obuwia są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku Odzieży wierzchniej, co świadczy o tym, że w przypadku tej kategorii klienci wydają trochę więcej. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej.Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
 :::
+
+```{r warning=FALSE, results='asis'}
+library(dplyr)
+library(e1071)
+library(kableExtra)
+
+tabela_wynikowa <- dane_kompletne %>%
+  group_by(Category) %>%
+  summarise(
+    Min = min(Amount, na.rm = TRUE),
+    Max = max(Amount, na.rm = TRUE),
+    `Kwartyl dolny` = quantile(Amount, 0.25, na.rm = TRUE),
+    Mediana = round(median(Amount, na.rm = TRUE), 2),
+    `Kwartyl górny` = quantile(Amount, 0.75, na.rm = TRUE),
+    Średnia = round(mean(Amount, na.rm = TRUE), 2),
+    `Odch. std.` = round(sd(Amount, na.rm = TRUE), 2),
+    IQR = round(IQR(Amount, na.rm = TRUE), 2),
+    `Odchylenie ćwiartkowe` = round(IQR(Amount, na.rm = TRUE) / 2, 2),
+    `Odch. std. w %` = round((sd(Amount, na.rm = TRUE) / mean(Amount, na.rm = TRUE)) * 100, 2),
+    `Odch. ćwiartkowe w %` = round((IQR(Amount, na.rm = TRUE) / median(Amount, na.rm = TRUE)) * 100, 2),
+    Skośność = round(skewness(Amount, na.rm = TRUE), 2),
+    Kurtoza = round(kurtosis(Amount, na.rm = TRUE), 2)
+  )
+
+  kbl(tabela_wynikowa,
+      caption = "Szczegółowa analiza statystyczna wydatków",
+      booktabs = TRUE,
+      align = "c") %>%
+    kable_styling(
+      bootstrap_options = c("striped", "hover", "condensed"),
+      full_width = FALSE,
+      position = "center",
+      font_size = 13
+    ) %>%
+    column_spec(1, bold = TRUE, border_right = TRUE) %>%
+    add_header_above(c(" " = 1,
+                       "Kategorie produktów" = ncol(tabela_wynikowa) - 1))
+```
+
 
 ```{r warning=FALSE}
 library(gtsummary)
@@ -500,6 +500,14 @@ ggbarstats(
 
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
+::: {style="text-align: justify;"}
+Preferencje klientów dotyczące wyboru rodzaju wysyłki zostały przedstawione na wykresie pudełkowym, gdzie każda kategoria wysyłki (Store Pickup, Standard, Next Day Air, Free Shipping, Express, 2-Day Shipping) została zilustrowana osobnym boxplotem obrazującym rozkład wydatków. Na osi Y znajdują się typy wysyłki, natomiast oś X przedstawia wartość zakupów. Wykres pozwala porównać medianę, rozrzut oraz obecność wartości odstających w każdej grupie.
+
+Na podstawie wykresu pudełkowego można zauważyć, że klienci wybierający szybsze opcje wysyłki — takie jak Next Day Air, Express czy 2-Day Shipping — mają tendencję do wydawania więcej niż ci, którzy decydują się na Standard, Free Shipping czy Store Pickup. Średnie wydatki (mediana w boxplotach) są wyraźnie wyższe dla szybszych metod dostawy, a zakres wartości (rozrzut) również wskazuje na obecność klientów z bardzo wysokimi wydatkami w tych grupach.
+
+Można więc wnioskować, że klienci wydający więcej częściej wybierają szybsze formy dostawy.
+:::
+
 ```{r warning=FALSE}
 ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
   geom_col(fill = "#6094DB") +
@@ -546,6 +554,12 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 ```
 
 ## Czy klienci którzy wystawiają lepszą ocenę częściej kupują?
+
+::: {style="text-align: justify;"}
+Preferencje klientów w zakresie liczby wcześniejszych zakupów w zależności od wystawionej oceny zostały przedstawione na wykresie pudełkowym, gdzie na osi X znajdują się trzy poziomy ocen: średnia (Medium), wysoka (High) oraz bardzo wysoka (Very High). Oś Y obrazuje liczbę poprzednich zakupów, a każdy poziom oceny został oznaczony innym kolorem, co ułatwia porównanie rozkładów.
+
+Analiza wykresu wskazuje, że klienci wystawiający bardzo wysokie oceny (Very High) mają tendencję do dokonywania większej liczby wcześniejszych zakupów niż osoby oceniające na poziomie średnim lub wysokim. Mediana liczby zakupów rośnie wraz z poziomem oceny, co może sugerować, że zadowolenie klientów koreluje z ich lojalnością i częstotliwością zakupów.
+:::
 
 ```{r}
 dane_kompletne$rating_cat<-cut(dane_kompletne$Rating,
@@ -621,7 +635,7 @@ ggplot(dane_interakcja, aes(x = Season, y = mean_amount, color = Category, group
 ```
 
 ::: {style="text-align: justify;"}
-Otrzymane wyniki analizy wariancji (ANOVA) wskazują na iistotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy rednio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na Amount, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
+Otrzymane wyniki analizy wariancji (ANOVA) wskazują na istotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy średnio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na Amount, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
 :::
 
 ```{r}
@@ -645,6 +659,12 @@ wyniki_tidy_pory_roku %>%
 
 ## Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
 
+::: {style="text-align: justify;"}
+Preferencje zakupowe klientów w poszczególnych kategoriach produktów z podziałem na płeć zostały przedstawione na mapie cieplnej, gdzie intensywność koloru odzwierciedla liczbę dokonanych zakupów. Na osi X znajduje się płeć, a na osi Y cztery kategorie produktów: Outerwear, Footwear, Clothing oraz Accessories. Im ciemniejszy odcień niebieskiego, tym większa liczba zakupów w danej grupie.
+
+Analiza wykresu pokazuje, że mężczyźni dokonują więcej zakupów niż kobiety we wszystkich kategoriach. Największe różnice widoczne są w kategorii odzieży, gdzie mężczyźni dokonali ponad dwukrotnie więcej transakcji niż kobiety (1181 vs 556). Podobna tendencja występuje w przypadku akcesoriów i obuwia. Najmniejsza różnica występuje w kategorii odzieży wierzchniej, choć i tu mężczyźni przeważają. Dane mogą sugerować większą aktywność zakupową mężczyzn w analizowanym okresie lub ich większe zainteresowanie konkretnymi kategoriami produktów.
+:::
+
 ```{r}
 dane_kompletne %>%
   count(Gender, Category) %>%
@@ -664,6 +684,12 @@ dane_kompletne %>%
 ```
 
 ## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
+
+::: {style="text-align: justify;"}
+Zależność między posiadaniem subskrypcji a częstotliwością dokonywania zakupów została również przedstawiona na mapie cieplnej, gdzie intensywność koloru odzwierciedla liczbę transakcji w różnych przedziałach czasowych. Na osi X znajduje się informacja o posiadaniu subskrypcji, natomiast oś Y przedstawia częstotliwość zakupów: tygodniową, dwutygodniową, miesięczną, kwartalną, coroczną oraz inne warianty. Każda komórka zawiera konkretną liczbę zakupów, co pozwala na bezpośrednie porównanie aktywności zakupowej użytkowników z subskrypcją i bez niej.
+
+Analiza wykresu wskazuje, że użytkownicy bez subskrypcji dokonują więcej zakupów we wszystkich kategoriach częstotliwości niż osoby posiadające subskrypcję. Może to sugerować, że subskrypcja niekoniecznie zwiększa częstotliwość zakupów, a wręcz przeciwnie — osoby bez niej wykazują większą aktywność zakupową.
+:::
 
 ```{r}
 dane_kompletne %>%
@@ -763,6 +789,10 @@ ggplotly(g)
 ```
 
 ## Korelacja zmiennych ilościowych
+
+::: {style="text-align: justify;"}
+Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi ilościowymi z wykorzystaniem współczynnika korelacji Pearsona. Współczynnik ten mierzy siłę i kierunek liniowego związku pomiędzy dwiema zmiennymi liczbowymi, przyjmując wartości od -1 (silna korelacja ujemna) przez 0 (brak korelacji) do 1 (silna korelacja dodatnia). Wyniki zostały przedstawione na wykresie korelacji w formie macierzy kolorystycznej, gdzie intensywność barw odzwierciedla siłę zależności pomiędzy zmiennymi: wiekiem, kwotą zakupu, oceną oraz liczbą wcześniejszych zakupów.
+:::
 
 ```{r warning=FALSE}
 korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
