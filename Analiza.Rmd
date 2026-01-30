@@ -250,7 +250,9 @@ Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze da
 
 ## Statystyki opisowe zmiennych ilościowych
 
+::: {style="text-align: justify;"}
 Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej.
+:::
 
 ```{r warning=FALSE}
 raport <- list(
@@ -288,21 +290,33 @@ kbl(tabela_wynikowa,
   add_header_above(c(" " = 1, "Kategorie produktów" = ncol(tabela_wynikowa) - 1))
 ```
 
+::: {style="text-align: justify;"}
 Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ Mediana i Średnia mają pododne wartości. Odchylenia standardowe w przypadku Akcesorii, Ubrań i Obuwia są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku Odzieży wierzchniej, co świadczy o tym, że w przypadku tej kategorii klienci wydają trochę więcej. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej.Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
+:::
 
 ```{r warning=FALSE}
 library(gtsummary)
-dane_kompletne %>%
-  select(Age, Amount, Rating, Previous.Purchases) %>% # Wybierz swoje 3 zmienne ilościowe
-  tbl_summary(
-    statistic = list(all_continuous() ~ "{mean} ({sd}) [min - max]"),
-    digits = list(all_continuous() ~ 2),
-    label = list(Age ~ "Wiek", Amount ~ "Kwota", Rating ~ "Ocena", Previous.Purchases ~ "Kwota wydana na wcześniejszych zakupach")
-  ) %>%
-  bold_labels() %>%
-  modify_header(label = "**Zmienna ilościowa**") %>%
-  as_kable_extra()
+library(reactable) 
+summary_tbl <- dane_kompletne %>% 
+  select(Age, Amount, Rating, Previous.Purchases) %>% 
+  summarise( 
+    Wiek = paste0(round(mean(Age), 2), " (", round(sd(Age), 2), ")"), 
+    Kwota = paste0(round(mean(Amount), 2), " (", round(sd(Amount), 2), ")"), 
+    Ocena = paste0(round(mean(Rating), 2), " (", round(sd(Rating), 2), ")"), 
+    `Kwota wydana na wcześniejszych zakupach` = paste0(round(mean(Previous.Purchases), 2), " (", round(sd(Previous.Purchases), 2), ")") ) %>% 
+  pivot_longer(cols = everything(), names_to = "Zmienna", values_to = "Średnia (SD)")  
+
+reactable(summary_tbl, 
+          bordered = TRUE, 
+          highlight = TRUE, 
+          striped = TRUE, 
+          defaultColDef = colDef(align = "center") 
+          )
 ```
+
+::: {style="text-align: justify;"}
+Na podstawie wyników można stwierdzić, że średni wiek badanych wynosi 44 lata, przy dużym zróżnicowaniu (SD = 15.22), co wskazuje na udział osób z różnych grup wiekowych. Średnia kwota zakupu to 59,61 USD, a wcześniejsze wydatki wynosiły przeciętnie 25,35 USD, co może sugerować wzrost zainteresowania ofertą lub skuteczność działań promocyjnych. Oceny produktów są raczej pozytywne (średnia 3,75 w skali 1–5), przy umiarkowanej zgodności opinii (SD = 0,72). Wszystkie zmienne wykazują znaczną zmienność, co świadczy o różnorodności zachowań konsumenckich w badanej grupie.
+:::
 
 # Wizualizacja danych
 
