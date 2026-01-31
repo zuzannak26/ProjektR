@@ -563,7 +563,7 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
 ## Czy większa liczba klientów wpływa na wyższą sprzedaż w poszczególnych lokalizacjach?
 
 ::: {style="text-align: justify;"}
-Korelacja między całkowitą sprzedarząą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi 0,88**.** Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, "średnie" wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
+Korelacja między całkowitą sprzedarząą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację. Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi 0,88**.** Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, "średnie" wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
 :::
 
 ```{r echo=FALSE, warning=FALSE}
@@ -624,7 +624,7 @@ Analiza wykresu wskazuje, że klienci wystawiający bardzo wysokie oceny (Very H
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
 
 ::: {style="text-align: justify;"}
-Różnice w kategoriach i kwotach zakupów w zależności od lokalizacji zostały przedstawione na wykresie typu heatmap. Na osi X znajdują się cztery kategorie produktów, natomiast na osi Y lokalizacje. Kolory na wykresie reprezentują wartość zakupów, gdzie jaśniejsze odcienie wskazują niższe wartości, a ciemniejsze wyższe. Odzież wykazuje najwyższe zagęszczenie ciemnych pól w niemal wszystkich stanach, co sugeruje, że jest to najbardziej popularna kategioria. Obuwie (Footwear) i odzież wierzchnia (Outwear) są kategoriami, na które przebadani konsumenci wydali mniejsze kwoty, wskazuje na to dominacja jaśniejszych kolorów.
+Różnice w kategoriach i kwotach zakupów w zależności od lokalizacji zostały przedstawione na wykresie typu heatmap (mapa cieplna). Na osi X znajdują się cztery kategorie produktów, natomiast na osi Y lokalizacje. Kolory na wykresie reprezentują wartość zakupów, gdzie jaśniejsze odcienie wskazują niższe wartości, a ciemniejsze wyższe. Odzież wykazuje najwyższe zagęszczenie ciemnych pól w niemal wszystkich stanach, co sugeruje, że jest to najbardziej popularna kategioria. Obuwie (Footwear) i odzież wierzchnia (Outwear) są kategoriami, na które przebadani konsumenci wydali mniejsze kwoty, wskazuje na to dominacja jaśniejszych kolorów.
 :::
 
 ```{r echo=FALSE, fig.height=12, fig.width=8, warning=FALSE}
@@ -697,7 +697,7 @@ dane_kompletne %>%
 ```
 
 ::: {style="text-align: justify;"}
-Analiza wykresu pokazuje, że mężczyźni dokonują więcej zakupów niż kobiety we wszystkich kategoriach. Największe różnice widoczne są w kategorii odzieży, gdzie mężczyźni dokonali ponad dwukrotnie więcej transakcji niż kobiety **(1181 vs 556)**. Podobna tendencja występuje w przypadku akcesoriów i obuwia. Najmniejsza różnica występuje w kategorii odzieży wierzchniej, choć i tu mężczyźni przeważają. Dane mogą sugerować większą aktywność zakupową mężczyzn w analizowanym okresie lub ich większe zainteresowanie konkretnymi kategoriami produktów.
+Analiza wykresu pokazuje, że mężczyźni dokonują więcej zakupów niż kobiety we wszystkich kategoriach. Największe różnice widoczne są w kategorii odzieży, gdzie mężczyźni dokonali ponad dwukrotnie więcej transakcji niż kobiety (1181 vs 556). Podobna tendencja występuje w przypadku akcesoriów i obuwia. Najmniejsza różnica występuje w kategorii odzieży wierzchniej, choć i tu mężczyźni przeważają. Dane mogą sugerować większą aktywność zakupową mężczyzn w analizowanym okresie lub ich większe zainteresowanie konkretnymi kategoriami produktów.
 :::
 
 ## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
@@ -769,7 +769,7 @@ ggbarstats(
 ```
 
 ::: {style="text-align: justify;"}
-Wyniki analizy statystycznej wskazały na brak istotnych różnic pomiędzy kategorią a wiekiem. Wartość p dla testu chi-kwadrat, wyniosła **0,24**, co jest znacznie powyżej przyjętego poziomu istotności, w związku z tym nie ma podstaw do odrzucenia hipotezy zerowej.
+Wyniki analizy statystycznej wskazały na brak istotnych różnic pomiędzy kategorią a wiekiem. Wartość p dla testu chi-kwadrat, wyniosła 0,24, co jest znacznie powyżej przyjętego poziomu istotności, w związku z tym nie ma podstaw do odrzucenia hipotezy zerowej.
 :::
 
 ## Analiza porównawcza kwot wydatków w podziale na kategorie
@@ -790,7 +790,7 @@ ggbetweenstats(
 ```
 
 ::: {style="text-align: justify;"}
-Wykres przedstawia rozkład wydatków w czterech kategoriach produktów za pomocą wykresów violinowych, uzupełnionych o boxploty, punkty danych oraz oznaczenia średnich wartości. Średnie wydatki w każdej grupie są zbliżone: ubrania **(59.80 USD)**, akcesoria **(59.25 USD)**, obuwie **(59.44 USD)** oraz odzież wierzchnia **(57.55 USD)**. Wizualnie rozkłady są podobne, bez wyraźnych różnic w kształcie czy rozrzucie.
+Wykres przedstawia rozkład wydatków w czterech kategoriach produktów za pomocą wykresów wiolinowych, uzupełnionych o boxploty, punkty danych oraz oznaczenia średnich wartości. Średnie wydatki w każdej grupie są zbliżone: ubrania (59.80 USD), akcesoria (59.25 USD), obuwie (59.44 USD) oraz odzież wierzchnia (57.55 USD). Wizualnie rozkłady są podobne, bez wyraźnych różnic w kształcie czy rozrzucie.
 
 Statystycznie, test Welch’a ANOVA wykazał brak istotnych różnic między grupami. Wartość standaryzowanej miary efektu wskazuje, że kategoria produktu nie wyjaśnia żadnej części wariancji wydatków. Przedział ufności dla siły efektu jest bardzo szeroki, co dodatkowo podkreśla niepewność wyniku. Analiza bayesowska potwierdza ten wniosek.
 
@@ -813,7 +813,7 @@ ggbarstats(
 ```
 
 ::: {style="text-align: justify;"}
-Wyniki testów przeprowadzonych dla całego zestawienia wskazują na brak istotnych różnic w preferencjach płatniczych pomiędzy badanymi grupami wiekowymi. Wartość p dla testu chi-kwadrat wyniosła **0,30**, co jest powyżej przyjętego poziomu istotności, co sugeruje brak podstaw do odrzucenia hipotezy zerowej o braku związku między wiekiem a wyborem metody płatności. Jednak rozkład wewnątrz grup jest bardziej zróżnicowany. Niskie wartości $p$ wskazują, że wewnątrz konkretnych metod płatności udziały grup wiekowych istotnie różnią się od założonego rozkładu.
+Wyniki testów przeprowadzonych dla całego zestawienia wskazują na brak istotnych różnic w preferencjach płatniczych pomiędzy badanymi grupami wiekowymi. Wartość p dla testu chi-kwadrat wyniosła 0,30, co jest powyżej przyjętego poziomu istotności, co sugeruje brak podstaw do odrzucenia hipotezy zerowej o braku związku między wiekiem a wyborem metody płatności. Jednak rozkład wewnątrz grup jest bardziej zróżnicowany. Niskie wartości $p$ wskazują, że wewnątrz konkretnych metod płatności udziały grup wiekowych istotnie różnią się od założonego rozkładu.
 :::
 
 ## Analiza wpływu sezonu na wartość zakupów w poszczególnych kategoriach
@@ -842,7 +842,7 @@ wyniki_tidy_pory_roku %>%
 ```
 
 ::: {style="text-align: justify;"}
-Otrzymane wyniki analizy wariancji ANOVA wskazują na istotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy średnio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej kategorii na kwotę zakupu, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
+Otrzymane wyniki analizy wariancji ANOVA wskazują na istotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy średnio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same nie generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na kwotę zakupu, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
 :::
 
 ## Analiza wpływu oceny produktu i płci na wysokość wydatków - dwuskładnikowa analiza ANOVA
@@ -893,7 +893,7 @@ ggbarstats(
 ```
 
 ::: {style="text-align: justify;"}
-W każdej z czterech kategorii dominują mężczyźni, stanowiąc **około 67–69%** kupujących, podczas gdy kobiety odpowiadają za **31–33%** transakcji. Rozkład ten jest bardzo podobny we wszystkich kategoriach, co sugeruje brak wyraźnych różnic w preferencjach produktowych między płciami.
+W każdej z czterech kategorii dominują mężczyźni, stanowiąc około 67–69% kupujących, podczas gdy kobiety odpowiadają za 31–33% transakcji. Rozkład ten jest bardzo podobny we wszystkich kategoriach, co sugeruje brak wyraźnych różnic w preferencjach produktowych między płciami.
 
 Wartość testu chi-kwadrat Pearsona oznacza to, że nie ma statystycznie istotnej zależności między płcią a wyborem kategorii produktu. Wartość współczynnika Cramera oraz przedział ufności wskazują na całkowity brak efektu.
 :::
@@ -921,7 +921,7 @@ kable(
 ```
 
 ::: {style="text-align: justify;"}
-Wyniki analizy ANCOVA wskazują, że jedyną zmienną mającą istotny statystycznie wpływ na kwotę zakupu jest ocena produktu **(F = 5,668; p = 0,017)**, co oznacza, że poziom oceny wiąże się ze zmianami wartości kwoty po kontrolowaniu pozostałych zmiennych w modelu. Natomiast płeć **(F = 0,509; p = 0,475)** oraz wiek **(F = 0,048; p = 0,826)** nie wykazują istotnego wpływu na kwotę zakupu, co sugeruje brak różnic w tej zmiennej ze względu na płeć oraz brak istotnego związku z wiekiem. Dodatkowo nie stwierdzono istotnej interakcji pomiędzy oceną produktu a płcią **(F = 1,027; p = 0,311)**, co oznacza, że wpływ oceny produktu na kwotę zakupu jest podobny niezależnie od płci.
+Wyniki analizy ANCOVA wskazują, że jedyną zmienną mającą istotny statystycznie wpływ na kwotę zakupu jest ocena produktu (F = 5,668; p = 0,017), co oznacza, że poziom oceny wiąże się ze zmianami wartości kwoty po kontrolowaniu pozostałych zmiennych w modelu. Natomiast płeć (F =0,509; p = 0,475) oraz wiek (F = 0,048; p = 0,826) nie wykazują istotnego wpływu na kwotę zakupu, co sugeruje brak różnic w tej zmiennej ze względu na płeć oraz brak istotnego związku z wiekiem. Dodatkowo nie stwierdzono istotnej interakcji pomiędzy oceną produktu a płcią (F = 1,027; p = 0,311), co oznacza, że wpływ oceny produktu na kwotę zakupu jest podobny niezależnie od płci.
 
 Podsumowując, w analizowanym modelu kwota zakupu jest istotnie związana wyłącznie z poziomem oceny produktu, natomiast płeć, wiek oraz interakcja oceny produktu z płcią nie mają istotnego znaczenia statystycznego.
 :::
