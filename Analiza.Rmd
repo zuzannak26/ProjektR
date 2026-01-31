@@ -569,7 +569,7 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
 Korelacja między całkowitą sprzedarzą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację. Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi 0,88**.** Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, średnie wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
 :::
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(ggpubr)
 dane_kompletne <- dane_kompletne %>%
   group_by(Location) %>%
@@ -940,7 +940,6 @@ Projekt analityczny przeprowadzony na zbiorze danych konsumenckich dostarczył k
 -   Wybór kategorii produktów nie był istotnie zależny od płci ani wieku w ujęciu ogólnym, choć niektóre kategorie wykazywały lokalne różnice demograficzne.
 -   Ogólny test nie wykazał istotnej zależności między wiekiem a wyborem metody płatności, jednak szczegółowa analiza ujawniła, że młodsze osoby preferują nowoczesne formy płatności (PayPal, Venmo), podczas gdy starsze grupy częściej korzystają z bardziej tradycyjnych rozwiązań.
 -   Średnie wydatki w różnych kategoriach produktów (Accessories, Clothing, Footwear, Outerwear) były bardzo zbliżone. Zarówno analiza klasyczna (Welch’s ANOVA), jak i bayesowska wykazały brak istotnych różnic między grupami.
--   Większość zmiennych ilościowych wykazuje słabe lub umiarkowane zależności. Szczególnie zauważalna była korelacja między wartością zakupu a oceną produktu oraz między poprzedniki zakupami a wiekiem, co może wskazywać na subtelne wzorce zachowań konsumenckich.
 -   Ocena produktu miała istotny wpływ na wysokość wydatków, natomiast płeć klienta oraz interakcja między oceną a płcią nie wykazały istotnych efektów.
 -   Sezon zakupowy nie miał istotnego wpływu na wysokość wydatków w poszczególnych kategoriach, co sugeruje stabilność zachowań zakupowych niezależnie od pory roku.
 
