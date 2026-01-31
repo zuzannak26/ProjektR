@@ -39,10 +39,10 @@ library(plotly)
 library(psych)
 library(qwraps2)
 library(EnvStats)
-library(data.table) # data mgmt
-library(gtools) # combination
-library(ggplot2) # graphics
-library(plotly) # interactive graphics
+library(data.table) 
+library(gtools) 
+library(ggplot2) 
+library(plotly) 
 library(corrplot)
 library(VIM)
 library(patchwork)
@@ -167,13 +167,16 @@ p3 <- ggplot(dane, aes(x=Age, y=Amount)) +
 ::: {style="text-align: justify;"}
 Imputacja metodą hotdeck polega na uzupełnianiu brakujących wartości poprzez przypisanie im rzeczywistych obserwacji pochodzących od statystycznie podobnych jednostek w tym samym zbiorze danych. Dobór tzw. dawcy odbywa się na podstawie zmiennych pomocniczych, które są kompletne i silnie powiązane z imputowaną cechą. W przeprowadzonej analizie wykorzystano imputację hotdeck w celu ograniczenia skali braków danych bez wprowadzania sztucznych wartości.
 :::
+```{r echo=FALSE, warning=FALSE}
+dane_imp <- hotdeck(dane)
+dane_kompletne <- dane_imp[,1:18]
 
+```
 ::: {style="text-align: justify;"}
 Po przeprowadzonej imputacji metodą hotdeck, zbiór danych został uzupełniony o brakujące wartości, co pozwoliło na uzyskanie kompletnego zestawu danych do dalszych analiz. Jak można zauważyć na poniższym wykresie, po zastosowaniu tej metody, zbiór danych nie zawiera już braków danych, co umożliwia przeprowadzenie dalszych analiz bez konieczności uwzględniania problemu niekompletności danych.
 :::
 
 ```{r echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
-#sprawdzenie czy dane_kompletne nie zawierają braków danych
 vis_miss(dane_kompletne, cluster = TRUE) + 
 theme(
     axis.text.x = element_text(angle = 45, hjust = 0, vjust = 0.5, size = 7),
