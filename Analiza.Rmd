@@ -251,8 +251,7 @@ Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze da
 ## Statystyki opisowe zmiennych ilościowych
 
 ::: {style="text-align: justify;"}
-Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej.
-Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ Mediana i Średnia mają pododne wartości. Odchylenia standardowe w przypadku Akcesorii, Ubrań i Obuwia są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku Odzieży wierzchniej, co świadczy o tym, że w przypadku tej kategorii klienci wydają trochę więcej. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej.Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
+Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej. Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ Mediana i Średnia mają pododne wartości. Odchylenia standardowe w przypadku Akcesorii, Ubrań i Obuwia są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku Odzieży wierzchniej, co świadczy o tym, że w przypadku tej kategorii klienci wydają trochę więcej. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej.Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
 :::
 
 ```{r warning=FALSE, results='asis'}
@@ -293,7 +292,6 @@ tabela_wynikowa <- dane_kompletne %>%
                        "Kategorie produktów" = ncol(tabela_wynikowa) - 1))
 ```
 
-
 ```{r warning=FALSE}
 library(gtsummary)
 library(reactable) 
@@ -316,6 +314,99 @@ reactable(summary_tbl,
 
 ::: {style="text-align: justify;"}
 Na podstawie wyników można stwierdzić, że średni wiek badanych wynosi 44 lata, przy dużym zróżnicowaniu (SD = 15.22), co wskazuje na udział osób z różnych grup wiekowych. Średnia kwota zakupu to 59,61 USD, a wcześniejsze wydatki wynosiły przeciętnie 25,35 USD, co może sugerować wzrost zainteresowania ofertą lub skuteczność działań promocyjnych. Oceny produktów są raczej pozytywne (średnia 3,75 w skali 1–5), przy umiarkowanej zgodności opinii (SD = 0,72). Wszystkie zmienne wykazują znaczną zmienność, co świadczy o różnorodności zachowań konsumenckich w badanej grupie.
+:::
+
+## Korelacje zmiennych jakościowych
+
+::: {style="text-align: justify;"}
+Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi jakościowymi za pomocą współczynnika Craméra V. Współczynnik ten mierzy siłę związku pomiędzy dwiema zmiennymi kategorycznymi, przyjmując wartości od 0 (brak związku) do 1 (pełna zależność).
+:::
+
+```{r, include=FALSE, warning=FALSE}
+# Cramer's V calculation --------------------------------------------------
+
+nowe_dane <- dane_kompletne[,c(3,4,5,7,8,9,10,12,13,14,15,17,18)]
+cat_var <- colnames(nowe_dane)
+# Function to compute Cramer's V
+cv.test = function(x,y) {
+  CV = sqrt(chisq.test(x, y, correct=FALSE)$statistic /
+              (length(x)[1] * (min(length(unique(x))[1],length(unique(y))[1]) - 1)))
+  return(as.numeric(CV))
+}
+
+# Apply the function to the combination of categorical variable
+v_cramer_all <- function(cat_var, df){
+  cat_var_grid <- data.table(combinations(n = length(cat_var), r = 2, v = cat_var, repeats.allowed = FALSE))
+  
+  do.call(rbind,
+          apply(cat_var_grid, 1, function(x){
+            tmp <- as.character(x)
+            vec1 <- unlist(df[,tmp[1],])
+            vec2 <- unlist(df[,tmp[2],])
+            
+            data.table(
+              variable_x = tmp[1],
+              variable_y = tmp[2],
+              chi2 = chisq.test(x = vec1, vec2, correct=FALSE)$p.value,
+              v_cramer = cv.test(x = vec1, y = vec2)
+            )
+          }))
+  
+}
+
+results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
+
+```
+
+```{r}
+# Heatmap vizualisation with ggplot2  -------------------------------------
+
+g <- ggplot(results, aes(variable_x, variable_y)) +
+  geom_tile(aes(fill = v_cramer), colour = "black") +
+  theme(axis.text.x=element_text(angle=45, hjust=1)) +
+  scale_fill_gradient(low = "white", high = "#6094DB") +
+  theme_bw() + xlab(NULL) + ylab(NULL) +
+  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
+  ggtitle("Cramer's V heatmap")
+
+ggplotly(g)
+```
+
+::: {style="text-align: justify;"}
+Analiza współzależności pomiędzy zmiennymi jakościowymi, oparta na współczynniku Cramera V, ujawnia wyraźne skupiska silnych relacji w badanym zbiorze danych. Najbardziej widoczne jest powiązanie między zmiennymi Item i Category, co wskazuje, że typ produktu jest ściśle związany z jego klasyfikacją. Drugim istotnym skupiskiem zależności jest Code–Discount–Subscription, gdzie zarówno kod promocyjny, jak i rodzaj zastosowanej zniżki oraz status subskrypcji wykazują wzajemne, podwyższone powiązania. Sugeruje to, że określone kody i rabaty mogą być częściej kierowane do subskrybentów lub stosowane w ramach konkretnych strategii marketingowych.
+:::
+
+## Korelacja zmiennych ilościowych
+
+::: {style="text-align: justify;"}
+Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi ilościowymi z wykorzystaniem współczynnika korelacji Pearsona. Współczynnik ten mierzy siłę i kierunek liniowego związku pomiędzy dwiema zmiennymi liczbowymi, przyjmując wartości od -1 (silna korelacja ujemna) przez 0 (brak korelacji) do 1 (silna korelacja dodatnia). Wyniki zostały przedstawione na wykresie korelacji w formie macierzy kolorystycznej, gdzie intensywność barw odzwierciedla siłę zależności pomiędzy zmiennymi: wiekiem, kwotą zakupu, oceną oraz liczbą wcześniejszych zakupów.
+:::
+
+```{r warning=FALSE}
+
+korelacja_macierz <- cor(dane_kompletne[, c(2, 6, 11, 16)], use = "complete.obs")
+
+corrplot(
+  korelacja_macierz,
+  method = "color",
+  col = colorRampPalette(c("red", "white", "blue"))(200),
+  type = "upper",
+  addCoef.col = "black",
+  number.cex = 0.8,
+  tl.col = "black",
+  tl.cex = 1.2,
+  cl.cex = 0.8,              
+  cl.ratio = 0.2,            
+  cl.align.text = "l",       
+  mar = c(1, 1, 1, 5)        
+)
+
+```
+
+::: {style="text-align: justify;"}
+Analiza wykresu wskazuje, że pomiędzy żadną z par zmiennych nie występuje silna korelacja. Wszystkie współczynniki korelacji mieszczą się w przedziale od -0.02 do 0.04, co oznacza bardzo słabe lub wręcz pomijalne związki liniowe. Przykładowo, korelacja między Age a Rating wynosi -0.02, co sugeruje brak istotnego wpływu wieku klienta na ocenę produktu.
+
+Na tle tych słabych zależności wyróżniają się dwie pary zmiennych, dla których korelacja osiąga wartość około 0.4, wskazując na umiarkowaną dodatnią relację. Pierwsza z nich to Amount i Rating, gdzie wyższe kwoty wydatków wiążą się z wyższymi ocenami produktów. Może to sugerować, że droższe produkty są postrzegane jako lepsze jakościowo lub że klienci, inwestując więcej, częściej oceniają zakup pozytywnie. Druga zauważalna zależność dotyczy pary Previous.Purchases i Age, gdzie starsi klienci mają tendencję do częstszych zakupów wynikających z ich nawyków nabytych w przeszłości.
 :::
 
 # Wizualizacja danych
@@ -378,23 +469,10 @@ ggplot(data = dane_kompletne, aes(x=Category, fill = age_group)) +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
-::: {style="text-align: justify;"}
-Powyższy wykres został uzupełniony o analizę statystyczną, która umożliwia ocenę istotności różnic w rozkładzie kategorii zakupionych produktów pomiędzy grupami wiekowymi. Wyniki analizy statystycznej wskazały na brak istotnych różnic pomiędzy kategorią a wiekiem. Wartość p dla testu chi-kwadrat, wyniosła 0.20, co jest znacznie powyżej przyjętego poziomu istotności, w związku z tym nie ma podstaw do odrzucenia hipotezy zerowej.
-:::
-
-```{r warning=FALSE}
-ggbarstats(
-  data = dane_kompletne,
-  x = age_group,
-  y = Category,
-  bf.message = FALSE) +
-  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
-```
-
 ## Czy wiek konsumentów wpływa na wysokość kwoty zakupu?
 
 ::: {style="text-align: justify;"}
-Do zbadani wpływu wieku konsumentów na wysokość kwoty zakupu wykorzystano wykres słupkowy przedstawiający wartość zakupu w poszczególnych grupach wiekowych. Wykres ten pozwala na wizualne porównanie średnich kwot zakupów pomiędzy różnymi grupami wiekowymi, co umożliwia ocenę wpływu wieku na wysokość wydatków konsumenckich. Grupy "30-44" i "45-59" przeciętnie wydawały najwięcej pieniędzy. Osoby powyżej 60 roku życia najmniej.
+Do zbadania wpływu wieku konsumentów na wysokość kwoty zakupu wykorzystano wykres słupkowy przedstawiający wartość zakupu w poszczególnych grupach wiekowych. Wykres ten pozwala na wizualne porównanie średnich kwot zakupów pomiędzy różnymi grupami wiekowymi, co umożliwia ocenę wpływu wieku na wysokość wydatków konsumenckich. Grupy "30-44" i "45-59" przeciętnie wydawały najwięcej pieniędzy. Osoby powyżej 60 roku życia najmniej.
 :::
 
 ```{r}
@@ -404,21 +482,6 @@ ggplot(data = dane_kompletne, aes(x=age_group, y=Amount)) +
   ylab("Kwota zakupu") +
   ggtitle("Kwota zakupu w zależności od wieku") +
   theme_light()
-```
-
-::: {style="text-align: justify;"}
-Przeprowadzona analiza statystyczna wykazała, że wiek konsumentów nie ma istotnego wpływu na wysokość ich wydatków. Średnie wydatki w każdej z grup wiekowych są do siebie zbliżone, około 60 doloarów, a rozkłady wydatków charakteryzują się niemal identycznym rokzładem.
-:::
-
-```{r}
-ggbetweenstats(
-  data = dane_kompletne,
-  x = age_group,
-  y = Amount,
-  title = "Rozkład wydatków według kategorii",
-  xlab = "Grupa wiekowa",
-  ylab = "Wydatki") +
-  scale_colour_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
 ## Jakie są najpopularniejsze kombinacje rozmiarów i kolorów w poszczególnych kategoriach?
@@ -485,19 +548,6 @@ ggplot(data = dane_kompletne, aes(x=Payment, fill = age_group)) +
   scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
-::: {style="text-align: justify;"}
-Wyniki testów przeprowadzonych dla całego zestawienia wskazują na brak istotnych różnic w preferencjach płatniczych pomiędzy badanymi grupami wiekowymi. Wartość p dla testu chi-kwadrat wyniosła 0.32, co jest powyżej przyjętego poziomu istotności, co sugeruje brak podstaw do odrzucenia hipotezy zerowej o braku związku między wiekiem a wyborem metody płatności. Jednak rozkład wewnątrz grup jest bardziej zróżnicowany. Niskie wartości $p$ wskazują, że wewnątrz konkretnych metod płatności udziały grup wiekowych istotnie różnią się od założonego rozkładu.
-:::
-
-```{r}
-ggbarstats(
-  data = dane_kompletne,
-  x = age_group,
-  y = Payment,
-  bf.message = FALSE) +
-  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
-```
-
 ## Czy klienci wydający więcej wybierają szybsze opcje wysyłki?
 
 ::: {style="text-align: justify;"}
@@ -557,8 +607,6 @@ ggplot(data = dane_kompletne, aes(x=total_sale_per_location, y=num_clients)) +
 
 ::: {style="text-align: justify;"}
 Preferencje klientów w zakresie liczby wcześniejszych zakupów w zależności od wystawionej oceny zostały przedstawione na wykresie pudełkowym, gdzie na osi X znajdują się trzy poziomy ocen: średnia (Medium), wysoka (High) oraz bardzo wysoka (Very High). Oś Y obrazuje liczbę poprzednich zakupów, a każdy poziom oceny został oznaczony innym kolorem, co ułatwia porównanie rozkładów.
-
-Analiza wykresu wskazuje, że klienci wystawiający bardzo wysokie oceny (Very High) mają tendencję do dokonywania większej liczby wcześniejszych zakupów niż osoby oceniające na poziomie średnim lub wysokim. Mediana liczby zakupów rośnie wraz z poziomem oceny, co może sugerować, że zadowolenie klientów koreluje z ich lojalnością i częstotliwością zakupów.
 :::
 
 ```{r}
@@ -582,6 +630,8 @@ geom_boxplot(aes(x=rating_cat, fill=rating_cat)) +
   ))
   
 ```
+
+Analiza wykresu wskazuje, że klienci wystawiający bardzo wysokie oceny (Very High) mają tendencję do dokonywania większej liczby wcześniejszych zakupów niż osoby oceniające na poziomie średnim lub wysokim. Mediana liczby zakupów rośnie wraz z poziomem oceny, co może sugerować, że zadowolenie klientów koreluje z ich lojalnością i częstotliwością zakupów.
 
 ## Czy istnieją znaczące różnice w kategoriach i kwotach zakupów w zależności od lokalizacji i sezonu?
 
@@ -609,7 +659,7 @@ ggplot(dane_kompletne, aes(x = Category, y = Location, fill = Amount)) +
 ## Czy sezon wpływa na wartość zakupów w poszczególnych kategoriach?
 
 ::: {style="text-align: justify;"}
-Wpływ pory roku na wartość zakupów w poszczególnych kategoriach został przedstawiony za pomocą wykresu interakcji. Według wykresu na obuwie badani konsumenci wydają najwięcej pieniędzy na jesień. Ta kategoria charakteryzuje się również dużym zróżnicowaniem pomiędzy porami roku. Na akcesorie największa suma pieniędzy zostaje przeznaczona na wiosnę. Natomiast ubrania charakteryzują się odrotnym trendem do akcesoriów. Odzież wierzchnia to kategoria o stosunkowo najniższych wahaniach. Choć jej wartość rośnie od wiosny do lata, przez resztę roku utrzymuje trend lekko spadkowy, osiągając najniższy poziom zimą. Wykres wyraźnie wskazuje na wpływ sezonowości na wartość zakupów w poszczególnych kategoriach. W celu sprawdzenia czy zaobserwowane różnice są istotne statystycznie została przeprowadzona test ANOVA.
+Wpływ pory roku na wartość zakupów w poszczególnych kategoriach został przedstawiony za pomocą wykresu interakcji. Według wykresu na obuwie badani konsumenci wydają najwięcej pieniędzy na jesień. Ta kategoria charakteryzuje się również dużym zróżnicowaniem pomiędzy porami roku. Na akcesorie największa suma pieniędzy zostaje przeznaczona na wiosnę. Natomiast ubrania charakteryzują się odrotnym trendem do akcesoriów. Odzież wierzchnia to kategoria o stosunkowo najniższych wahaniach. Choć jej wartość rośnie od wiosny do lata, przez resztę roku utrzymuje trend lekko spadkowy, osiągając najniższy poziom zimą. Wykres wyraźnie wskazuje na wpływ sezonowości na wartość zakupów w poszczególnych kategoriach.
 :::
 
 ```{r}
@@ -634,35 +684,10 @@ ggplot(dane_interakcja, aes(x = Season, y = mean_amount, color = Category, group
                                 "Outerwear" = "#5C504F"))
 ```
 
-::: {style="text-align: justify;"}
-Otrzymane wyniki analizy wariancji (ANOVA) wskazują na istotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy średnio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na Amount, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
-:::
-
-```{r}
-model_pory_roku <- aov(Amount ~ Season * Category, data = dane_kompletne)
-
-wyniki_tidy_pory_roku <- tidy(model_pory_roku)
-
-wyniki_tidy_pory_roku %>%
-  kable(
-    caption = "Tabela 1: Wyniki analizy wariancji dla zmiennej Amount",
-    col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
-    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
-  ) %>%
-  kable_styling(
-    bootstrap_options = c("striped", "hover", "responsive"),
-    full_width = F,
-  ) %>%
-  row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
-
-```
-
 ## Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
 
 ::: {style="text-align: justify;"}
 Preferencje zakupowe klientów w poszczególnych kategoriach produktów z podziałem na płeć zostały przedstawione na mapie cieplnej, gdzie intensywność koloru odzwierciedla liczbę dokonanych zakupów. Na osi X znajduje się płeć, a na osi Y cztery kategorie produktów: Outerwear, Footwear, Clothing oraz Accessories. Im ciemniejszy odcień niebieskiego, tym większa liczba zakupów w danej grupie.
-
-Analiza wykresu pokazuje, że mężczyźni dokonują więcej zakupów niż kobiety we wszystkich kategoriach. Największe różnice widoczne są w kategorii odzieży, gdzie mężczyźni dokonali ponad dwukrotnie więcej transakcji niż kobiety (1181 vs 556). Podobna tendencja występuje w przypadku akcesoriów i obuwia. Najmniejsza różnica występuje w kategorii odzieży wierzchniej, choć i tu mężczyźni przeważają. Dane mogą sugerować większą aktywność zakupową mężczyzn w analizowanym okresie lub ich większe zainteresowanie konkretnymi kategoriami produktów.
 :::
 
 ```{r}
@@ -683,12 +708,12 @@ dane_kompletne %>%
 
 ```
 
+Analiza wykresu pokazuje, że mężczyźni dokonują więcej zakupów niż kobiety we wszystkich kategoriach. Największe różnice widoczne są w kategorii odzieży, gdzie mężczyźni dokonali ponad dwukrotnie więcej transakcji niż kobiety (1181 vs 556). Podobna tendencja występuje w przypadku akcesoriów i obuwia. Najmniejsza różnica występuje w kategorii odzieży wierzchniej, choć i tu mężczyźni przeważają. Dane mogą sugerować większą aktywność zakupową mężczyzn w analizowanym okresie lub ich większe zainteresowanie konkretnymi kategoriami produktów.
+
 ## Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
 
 ::: {style="text-align: justify;"}
 Zależność między posiadaniem subskrypcji a częstotliwością dokonywania zakupów została również przedstawiona na mapie cieplnej, gdzie intensywność koloru odzwierciedla liczbę transakcji w różnych przedziałach czasowych. Na osi X znajduje się informacja o posiadaniu subskrypcji, natomiast oś Y przedstawia częstotliwość zakupów: tygodniową, dwutygodniową, miesięczną, kwartalną, coroczną oraz inne warianty. Każda komórka zawiera konkretną liczbę zakupów, co pozwala na bezpośrednie porównanie aktywności zakupowej użytkowników z subskrypcją i bez niej.
-
-Analiza wykresu wskazuje, że użytkownicy bez subskrypcji dokonują więcej zakupów we wszystkich kategoriach częstotliwości niż osoby posiadające subskrypcję. Może to sugerować, że subskrypcja niekoniecznie zwiększa częstotliwość zakupów, a wręcz przeciwnie — osoby bez niej wykazują większą aktywność zakupową.
 :::
 
 ```{r}
@@ -708,6 +733,8 @@ dane_kompletne %>%
 
 
 ```
+
+Analiza wykresu wskazuje, że użytkownicy bez subskrypcji dokonują więcej zakupów we wszystkich kategoriach częstotliwości niż osoby posiadające subskrypcję. Może to sugerować, że subskrypcja niekoniecznie zwiększa częstotliwość zakupów, a wręcz przeciwnie — osoby bez niej wykazują większą aktywność zakupową.
 
 ## Średnia ocen zakupów w poszczególnych stanach
 
@@ -732,76 +759,28 @@ plot_usmap(data = dane_mapa, values = "Srednia", color = "white", labels = TRUE)
 
 ```
 
-## Korelacje zmiennych jakościowych
-
-::: {style="text-align: justify;"}
-Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi jakościowymi za pomocą współczynnika Craméra V. Współczynnik ten mierzy siłę związku pomiędzy dwiema zmiennymi kategorycznymi, przyjmując wartości od 0 (brak związku) do 1 (pełna zależność).
-:::
-
-```{r, include=FALSE, warning=FALSE}
-# Cramer's V calculation --------------------------------------------------
-
-nowe_dane <- dane_kompletne[,c(3,4,5,7,8,9,10,12,13,14,15,17,18)]
-cat_var <- colnames(nowe_dane)
-# Function to compute Cramer's V
-cv.test = function(x,y) {
-  CV = sqrt(chisq.test(x, y, correct=FALSE)$statistic /
-              (length(x)[1] * (min(length(unique(x))[1],length(unique(y))[1]) - 1)))
-  return(as.numeric(CV))
-}
-
-# Apply the function to the combination of categorical variable
-v_cramer_all <- function(cat_var, df){
-  cat_var_grid <- data.table(combinations(n = length(cat_var), r = 2, v = cat_var, repeats.allowed = FALSE))
-  
-  do.call(rbind,
-          apply(cat_var_grid, 1, function(x){
-            tmp <- as.character(x)
-            vec1 <- unlist(df[,tmp[1],])
-            vec2 <- unlist(df[,tmp[2],])
-            
-            data.table(
-              variable_x = tmp[1],
-              variable_y = tmp[2],
-              chi2 = chisq.test(x = vec1, vec2, correct=FALSE)$p.value,
-              v_cramer = cv.test(x = vec1, y = vec2)
-            )
-          }))
-  
-}
-
-results <- v_cramer_all(cat_var = cat_var, df = nowe_dane)
-
-```
-
-```{r}
-# Heatmap vizualisation with ggplot2  -------------------------------------
-
-g <- ggplot(results, aes(variable_x, variable_y)) +
-  geom_tile(aes(fill = v_cramer), colour = "black") +
-  theme(axis.text.x=element_text(angle=45, hjust=1)) +
-  scale_fill_gradient(low = "white", high = "#6094DB") +
-  theme_bw() + xlab(NULL) + ylab(NULL) +
-  theme(axis.text.x=element_text(angle = -90, hjust = 0)) +
-  ggtitle("Cramer's V heatmap")
-
-ggplotly(g)
-```
-
-## Korelacja zmiennych ilościowych
-
-::: {style="text-align: justify;"}
-Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi ilościowymi z wykorzystaniem współczynnika korelacji Pearsona. Współczynnik ten mierzy siłę i kierunek liniowego związku pomiędzy dwiema zmiennymi liczbowymi, przyjmując wartości od -1 (silna korelacja ujemna) przez 0 (brak korelacji) do 1 (silna korelacja dodatnia). Wyniki zostały przedstawione na wykresie korelacji w formie macierzy kolorystycznej, gdzie intensywność barw odzwierciedla siłę zależności pomiędzy zmiennymi: wiekiem, kwotą zakupu, oceną oraz liczbą wcześniejszych zakupów.
-:::
-
-```{r warning=FALSE}
-korelacja_macierz <- cor(dane_kompletne[,c(2,6,11,16)])
-corrplot(korelacja_macierz, method="color")
-```
-
 # Wnioskowanie statystyczne
 
+## Analiza wpływu wieku konsumentów na wybór kategorii zakupionych przedmiotów
+
+Celem analizy jest zbadanie, czy wiek konsumentów wpływa na wybór kategorii zakupionych produktów. Wykorzystano wykres słupkowy z podziałem procentowym oraz test chi-kwadrat Pearsona, aby ocenić, czy rozkład wyborów produktowych różni się istotnie pomiędzy grupami wiekowymi. Dodatkowo obliczono wartość V Cramera jako miarę siły zależności oraz p‑value dla każdej kategorii osobno.
+
+```{r warning=FALSE}
+ggbarstats(
+  data = dane_kompletne,
+  x = age_group,
+  y = Category,
+  bf.message = FALSE) +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
+```
+
+::: {style="text-align: justify;"}
+Wyniki analizy statystycznej wskazały na brak istotnych różnic pomiędzy kategorią a wiekiem. Wartość p dla testu chi-kwadrat, wyniosła 0.24, co jest znacznie powyżej przyjętego poziomu istotności, w związku z tym nie ma podstaw do odrzucenia hipotezy zerowej.
+:::
+
 ## Analiza porównawcza kwot wydatków w podziale na kategorie
+
+Celem poniższej analizy jest porównanie rozkładu wydatków klientów w zależności od kategorii zakupionych produktów. Zmienna Amount reprezentuje kwotę pojedynczej transakcji, natomiast zmienna Category dzieli zakupy na cztery grupy: Accessories, Clothing, Footwear oraz Outerwear. Analiza ma na celu ocenę, czy kategorie różnią się istotnie pod względem wysokości wydatków, oraz czy struktura tych wydatków wskazuje na zróżnicowane preferencje konsumenckie. Wykorzystano zarówno klasyczne testy statystyczne (Welch’s ANOVA), jak i podejście bayesowskie, aby uzyskać pełniejszy obraz zależności.
 
 ```{r warning=FALSE}
 ggbetweenstats(
@@ -814,15 +793,43 @@ ggbetweenstats(
   scale_colour_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
 ```
 
-## Dwuskładnikowa analiza ANOVA
+::: {style="text-align: justify;"}
+Wykres przedstawia rozkład wydatków w czterech kategoriach produktów za pomocą wykresów violinowych, uzupełnionych o boxploty, punkty danych oraz oznaczenia średnich wartości. Średnie wydatki w każdej grupie są zbliżone: Clothing (59.80 USD), Accessories (59.25 USD), Footwear (59.44 USD) oraz Outerwear (57.55 USD). Wizualnie rozkłady są podobne, bez wyraźnych różnic w kształcie czy rozrzucie.
+
+Statystycznie, test Welch’a ANOVA wykazał brak istotnych różnic między grupami.Wartość standaryzowanej miary efektu wskazuje, że kategoria produktu nie wyjaśnia żadnej części wariancji wydatków. Przedział ufności dla siły efektu jest bardzo szeroki, co dodatkowo podkreśla niepewność wyniku. Analiza bayesowska potwierdza ten wniosek.
+
+Podsumowując, zarówno wizualizacja, jak i testy statystyczne jednoznacznie wskazują, że wydatki klientów nie różnią się istotnie w zależności od kategorii produktu. Średnie wartości są niemal identyczne, a brak efektu potwierdzają zarówno podejścia klasyczne, jak i bayesowskie.
+:::
+
+## Analiza wpływu grupy wiekowej na preferencje dotyczące wyboru metod płatności
+
+Celem niniejszej analizy jest zbadanie, czy wiek konsumentów wpływa na preferencje dotyczące wyboru metod płatności. Analiza ma charakter eksploracyjny i została przeprowadzona przy użyciu wykresu słupkowego z podziałem procentowym, który pozwala ocenić, jak rozkładają się wybory płatnicze w poszczególnych grupach wiekowych. Dodatkowo zastosowano test chi-kwadrat Pearsona oraz współczynnik V Cramera, aby określić, czy obserwowane różnice mają charakter statystycznie istotny i jak silna jest zależność między wiekiem a preferencją płatniczą.
 
 ```{r}
-wyniki <- aov(Amount ~ Rating*Gender, data = dane_kompletne)
-wyniki_tidy <- tidy(wyniki)
+ggbarstats(
+  data = dane_kompletne,
+  x = age_group,
+  y = Payment,
+  bf.message = FALSE) +
+  scale_fill_manual(values = c("#6094DB", "#DB6E60","#C1DB60", "#5C504F"))
+```
 
-wyniki_tidy %>%
+::: {style="text-align: justify;"}
+Wyniki testów przeprowadzonych dla całego zestawienia wskazują na brak istotnych różnic w preferencjach płatniczych pomiędzy badanymi grupami wiekowymi. Wartość p dla testu chi-kwadrat wyniosła 0.30, co jest powyżej przyjętego poziomu istotności, co sugeruje brak podstaw do odrzucenia hipotezy zerowej o braku związku między wiekiem a wyborem metody płatności. Jednak rozkład wewnątrz grup jest bardziej zróżnicowany. Niskie wartości $p$ wskazują, że wewnątrz konkretnych metod płatności udziały grup wiekowych istotnie różnią się od założonego rozkładu.
+:::
+
+## Analiza wpływu sezonu na wartość zakupów w poszczególnych kategoriach
+
+W kontekście badania zachowań konsumenckich warto przyjrzeć się, czy sezon zakupowy oraz typ produktu wpływają na wysokość wydatków. Analiza wariancji (ANOVA) z uwzględnieniem interakcji między tymi zmiennymi pozwala ocenić, czy wydatki różnią się istotnie w zależności od sezonu, kategorii produktu, oraz czy efekt sezonu zależy od rodzaju kupowanego towaru.
+
+```{r}
+model_pory_roku <- aov(Amount ~ Season * Category, data = dane_kompletne)
+
+wyniki_tidy_pory_roku <- tidy(model_pory_roku)
+
+wyniki_tidy_pory_roku %>%
   kable(
-    caption = "Tabela 2:Wyniki analizy wariancji dla zmiennej Amount",
+    caption = "Tabela 1: Wyniki analizy wariancji dla zmiennej Amount",
     col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
     digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
   ) %>%
@@ -834,38 +841,43 @@ wyniki_tidy %>%
 
 ```
 
-## Analiza różnic w wydatkach między kobietami a mężczyznami względem ocen
+::: {style="text-align: justify;"}
+Otrzymane wyniki analizy wariancji (ANOVA) wskazują na istotną statystycznie interakcję między porą roku a kategorią produktu. Oznacza to, że wpływ sezonu na wartość zakupów nie jest stały — to, czy średnio od tego, jaką grupę produktów analizujemy. Potwierdza to wizualne obserwacje z wykresu interakcji, gdzie linie trendów przecinały się, zamiast biec równolegle. Brak statystycznie istotnego wpływu zmiennej Season na zmienną Amount, oznacza, że jeśli uśrednimy wydatki ze wszystkich kategorii, pory roku same generują znacząco różnych poziomów sprzedaży. Tak samo brak wpływu zmiennej Category na Amount, wskazuje, że w skali całego roku, żadna kategoria nie jest droższa lub tańsza od pozostałych.
+:::
+
+## Analiza wpływu oceny produktu i płci na wysokość wydatków - dwuskładnikowa analiza ANOVA
+
+Celem analizy jest ocena wpływu dwóch zmiennych: Rating (ocena produktu) oraz Gender (płeć klienta) na wysokość wydatków (Amount). W tym celu zastosowano analizę wariancji (ANOVA) z uwzględnieniem interakcji między zmiennymi, co pozwala nie tylko ocenić ich indywidualny wpływ, ale również sprawdzić, czy efekt jednej zmiennej zależy od poziomu drugiej.
 
 ```{r}
-interaction.plot(dane_kompletne$Rating, dane_kompletne$Gender, dane_kompletne$Amount,
-                 xlab = "Ocena zakupu",
-                 ylab = "Kwota zakupu",
-                 trace.label = "Płeć",
-                 col = c("#DB6E60", "#6094DB"),
-                 lty = 1,
-                 lwd = 2,
-) 
-```
+wyniki <- aov(Amount ~ Rating*Gender, data = dane_kompletne)
+wyniki_tidy <- tidy(wyniki)
 
-## Analiza wariancji wpływu oceny i płci na wysokość wydatków
-
-```{r}
-dane_kompletne %>%
-  anova_test(Amount ~ Rating*Gender) %>%
+wyniki_tidy %>%
   kable(
-    caption = "Tabela 3: Wpływ oceny i płci na wysokość wydatków",
-    col.names = c("Efekt", "Dfn", "DFd", "statystyka F", "p-value", "p<0,05", "ges"),
-    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+    caption = "Wyniki analizy wariancji dla zmiennej Amount",
+    col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
+    digits = 3 
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "responsive"),
     full_width = F,
   ) %>%
   row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
-                
+
 ```
 
+::: {style="text-align: justify;"}
+Wyniki analizy wariancji wskazują, że zmienna Rating ma istotny wpływ na wysokość wydatków. Oznacza to, że ocena produktu wiąże się ze statystycznie istotnymi różnicami w kwocie wydatków, czyli klienci mogą wydawać więcej na produkty, które oceniają wyżej, lub odwrotnie, wyższe wydatki mogą być związane z wyższymi oczekiwaniami i ocenami.
+
+Zmienna Gender nie wykazuje istotnego wpływu na wydatki. Oznacza to, że średnie wydatki nie różnią się istotnie pomiędzy kobietami a mężczyznami w badanej próbie.
+
+Interakcja Rating × Gender również nie jest istotna statystycznie. Wskazuje to, że wpływ oceny produktu na wydatki nie zależy od płci klienta.
+:::
+
 ## Czy istnieje zależność między płcią a kategorią zakupionych przedmiotów?
+
+W tej części analizy sprawdzono, czy istnieje zależność między zmienną Gender (płeć) a wyborem kategorii zakupionych produktów (Category). Wykorzystano wykres słupkowy z podziałem procentowym oraz test chi-kwadrat Pearsona, aby ocenić, czy rozkład wyborów produktowych różni się istotnie pomiędzy kobietami a mężczyznami. Dodatkowo obliczono wartość V Cramera jako miarę siły zależności oraz p‑value dla każdej kategorii osobno.
 
 ```{r warning=FALSE}
 ggbarstats(
@@ -876,16 +888,22 @@ ggbarstats(
   scale_fill_manual(values = c("#6094DB", "#DB6E60"))
 ```
 
-## Analiza ANCOVA
+W każdej z czterech kategorii dominują mężczyźni, stanowiąc około 67–69% kupujących, podczas gdy kobiety odpowiadają za 31–33% transakcji. Rozkład ten jest bardzo podobny we wszystkich kategoriach, co sugeruje brak wyraźnych różnic w preferencjach produktowych między płciami.
+
+Wartość testu chi-kwadrat Pearsona oznacza to, że nie ma statystycznie istotnej zależności między płcią a wyborem kategorii produktu. Wartość współczynnika Cramera oraz przedział ufności wskazują na całkowity brak efektu.
+
+## Analiza wpływu oceny produktu, płci i wieku na kwotę zakupu z wykorzystaniem ANCOVA
+
+Analiza kowariancji ANCOVA została przeprowadzona w celu zbadania wpływu zmiennej Rating na zmienną zależną Amount, przy jednoczesnym kontrolowaniu potencjalnego wpływu zmiennych Gender oraz Age. Dodatkowo uwzględniono interakcję między zmiennymi Rating i Gender, aby sprawdzić, czy wpływ oceny (Rating) na wartość Amount różni się w zależności od płci.
 
 ```{r}
 dane_kompletne |>
   aov(Amount ~ Rating*Gender+Age, data = _) |>
   tidy() |>
 kable(
-    caption = "Tabela 4: Wyniki analizy ANCOVA",
+    caption = "Wyniki analizy ANCOVA",
     col.names = c("Efekt", "Df", "Suma kwadratów", "Średni kwadrat", "Statystyka F", "p-value"),
-    digits = 3 # Zaokrąglenie do 3 miejsc po przecinku
+    digits = 3 
   ) %>%
   kable_styling(
     bootstrap_options = c("striped", "hover", "responsive"),
@@ -893,3 +911,7 @@ kable(
   ) %>%
   row_spec(0, bold = TRUE, color = "white", background = "#6094DB") 
 ```
+
+Wyniki analizy ANCOVA wskazują, że jedyną zmienną mającą istotny statystycznie wpływ na kwotę zakpu jest ocena produktu (F = 5,668; p = 0,017), co oznacza, że poziom oceny wiąże się ze zmianami wartości kwoty po kontrolowaniu pozostałych zmiennych w modelu. Natomiast płeć (F = 0,509; p = 0,475) oraz wiek (F = 0,048; p = 0,826) nie wykazują istotnego wpływu na kwotę zakupu, co sugeruje brak różnic w tej zmiennej ze względu na płeć oraz brak istotnego związku z wiekiem. Dodatkowo nie stwierdzono istotnej interakcji pomiędzy oceną produktu a płcią (F = 1,027; p = 0,311), co oznacza, że wpływ oceny produktu na kwotę zakupu jest podobny niezależnie od płci. 
+
+Podsumowując, w analizowanym modelu kwota zakupu jest istotnie związana wyłącznie z poziomem oceny produktu, natomiast płeć, wiek oraz interakcja oceny produktu z płcią nie mają istotnego znaczenia statystycznego.
