@@ -435,11 +435,9 @@ W niniejszym rozdziale zaprezentowano wybrane metody wizualizacji danych wykorzy
 
 10. Czy płeć wpływa na zakup produktów z poszczególnych kategorii?
 
-11. Czy posiadanie subskrypcji wpływa na częstotliowść zakupów?
+11. Czy posiadanie subskrypcji wpływa na częstotliwość zakupów?
 
 12. Jaka jest średnia ocen zakupów dla poszczególnych stanów?
-
-13. Czy istnieją znaczące różnice w kategoriach produktów i kwotach zakupów w zależności od sezonu?
 
 ## Czy wiek konsumentów wpływa na wybór kategorii zakupionych przedmiotów?
 
