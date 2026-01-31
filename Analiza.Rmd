@@ -115,15 +115,15 @@ kable(data_dict,
 ::: {style="text-align: justify;"}
 Pierwszym etapem przeprowadzonej analizy danych było zweryfikowanie kompletności badanego zbioru danych, w szczególności identyfikacja występowania braków danych. W tym celu dokonano oceny liczby obserwacji niekompletnych oraz ich udziału procentowego w całym zbiorze.
 
-Przeprowadzona analiza wykazała, że w badanym zbiorze danych występuje **`r n_miss(dane)`** **obserwacji** zawierających braki danych, co stanowi **`r pct_miss(dane)`%** wszystkich obserwacji, natomiast **`r n_complete(dane)`** **obserwacji** stanowią dane kompletne.
+Przeprowadzona analiza wykazała, że w badanym zbiorze danych występuje **`r n_miss(dane)`** **obserwacji** zawierających braki danych, co stanowi **`r round(pct_miss(dane),2)`%** wszystkich obserwacji, natomiast **`r n_complete(dane)`** **obserwacji** stanowią dane kompletne.
 
-W kolejnym kroku dokonano szczegółowej analizy braków danych wraz z badaniem struktury oraz wzorców występowania braków danych, w celu ustalenia, czy braki pojawiają się w sposób losowy, czy też wykazują określone zależności pomiędzy zmiennymi. Identyfikacja wzorców braków danych umożliwia podjęcie decyzji dotyczących dalszego postępowania z brakującymi obserwacjami, takich jak ich imputacja.
+W kolejnym kroku dokonano szczegółowej analizy braków danych wraz z badaniem struktury oraz wzorców występowania braków danych, w celu ustalenia, czy braki pojawiają się w sposób losowy, czy też wykazują określone zależności pomiędzy zmiennymi. Identyfikacja wzorców braków danych umożliwia podjęcie decyzji dotyczących dalszego postępowania z brakującymi obserwacjami.
 :::
 
 ### Wzorzec braków danych
 
 ::: {style="text-align: justify;"}
-Pierwszym krokiem w analizie wzorców braków danych jest graficzne przedstawienie braków danych. Poniższy wykres wskazuje, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w zmiennych: wiek (Age), wydatki (Amount) oraz sezon (Season), co sugeruje, że braki danych nie są całkowicie losowe.
+Pierwszym krokiem w analizie wzorców braków danych jest graficzne przedstawienie braków danych. Poniższy wykres wskazuje, że chociaż największa liczba obserwacji charakteryzuje się brakiem pojedynczej zmiennej, to występują również wyraźne przypadki jednoczesnych braków w więcej niż jednej zmiennej. Analiza mapy braków danych wskazuje na istnienie powtarzalnych wzorców współwystępowania braków w przypadku zmiennych: wiek (Age), wydatki (Amount) oraz sezon (Season), co sugeruje, że braki danych nie są całkowicie losowe.
 :::
 
 ```{r echo=FALSE, warning=FALSE}
@@ -132,9 +132,9 @@ naniar::gg_miss_upset(dane)
 ```
 
 ::: {style="text-align: justify;"}
-W celu lepszego zobrazowania powiązań między brakami danych w trzech kluczowych zmiennych, zestawiono ze sobą odpowiednie wykresy. Analiza wizualna pozwala stwierdzić, że braki w informacjach dotyczących wieku oraz wydanej kwoty występują niemal wyłącznie w przypadku zakupów dokonywanych jesienią. Świadczy to o tym, że w tej kategorii braki nie mają charakteru losowego.
+W celu lepszego zobrazowania powiązań między brakami danych w trzech kluczowych zmiennych, zestawiono ze sobą wykresy przedstawiające wzorce braków danych. Analiza wizualna pozwala stwierdzić, że braki w informacjach dotyczących wieku oraz wydanej kwoty występują niemal wyłącznie w przypadku zakupów dokonywanych jesienią. Świadczy to o tym, że w tej kategorii braki nie mają charakteru losowego.
 
-Z kolei analiza relacji pomiędzy samym wiekiem a wydaną kwotą pokazuje, że braki danych są rozproszone równomiernie: występują w całym zakresie kwot oraz u osób w każdym przedziale wiekowym. Oznacza to brak korelacji w występowaniu braków między tymi dwiema zmiennymi.
+Z kolei analiza relacji pomiędzy samym wiekiem a wydaną kwotą pokazuje, że braki danych są rozproszone równomiernie, występują w całym zakresie kwot oraz u osób w każdym przedziale wiekowym. Oznacza to brak korelacji w występowaniu braków między tymi dwiema zmiennymi.
 :::
 
 ```{r echo=FALSE, warning=FALSE}
@@ -168,19 +168,11 @@ p3 <- ggplot(dane, aes(x=Age, y=Amount)) +
 Imputacja metodą hotdeck polega na uzupełnianiu brakujących wartości poprzez przypisanie im rzeczywistych obserwacji pochodzących od statystycznie podobnych jednostek w tym samym zbiorze danych. Dobór tzw. dawcy odbywa się na podstawie zmiennych pomocniczych, które są kompletne i silnie powiązane z imputowaną cechą. W przeprowadzonej analizie wykorzystano imputację hotdeck w celu ograniczenia skali braków danych bez wprowadzania sztucznych wartości.
 :::
 
-```{r echo=FALSE, warning=FALSE}
-dane_imp <- hotdeck(dane)
-naniar::vis_miss(dane_imp)
-#dane bez braków
-dane_kompletne <- dane_imp[,1:18]
-
-```
-
 ::: {style="text-align: justify;"}
 Po przeprowadzonej imputacji metodą hotdeck, zbiór danych został uzupełniony o brakujące wartości, co pozwoliło na uzyskanie kompletnego zestawu danych do dalszych analiz. Jak można zauważyć na poniższym wykresie, po zastosowaniu tej metody, zbiór danych nie zawiera już braków danych, co umożliwia przeprowadzenie dalszych analiz bez konieczności uwzględniania problemu niekompletności danych.
 :::
 
-```{r echo=FALSE, warning=FALSE}
+```{r echo=FALSE, warning=FALSE, fig.height=10, fig.width=12}
 #sprawdzenie czy dane_kompletne nie zawierają braków danych
 vis_miss(dane_kompletne, cluster = TRUE) + 
 theme(
@@ -253,7 +245,7 @@ Przeprowadzona walidacja danych wskazała, że wszystkie obserwacje w zbiorze da
 ## Statystyki opisowe zmiennych ilościowych
 
 ::: {style="text-align: justify;"}
-Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej. Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ Mediana i Średnia mają pododne wartości. Odchylenia standardowe w przypadku Akcesorii, Ubrań i Obuwia są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku Odzieży wierzchniej, co świadczy o tym, że w przypadku tej kategorii klienci wydają trochę więcej. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej. Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
+Kolejnym etapem badania jest szczegółowa analiza statystyczna zmiennej ilościowej Amount, która reprezentuje kwoty wydawane przez klientów podczas pojedynczej transakcji. Celem poniższego zestawienia jest nie tylko wyznaczenie przeciętnej wartości koszyka zakupowego, ale również zbadanie struktury tych wydatków – ich zróżnicowania, asymetrii oraz koncentracji wokół średniej. Z otrzymanych wyników można wywnioskować, że wydatki na różne kategorie produktów rozkładają się równomiernie, ponieważ mediana i średnia mają pododne wartości. Odchylenia standardowe w przypadku akcesorii (Accessories), ubrań (Clothing) i obuwia (Footwear) są bardzo zbliżone do siebie, co świadczy o tym, że klienci wydają podobne kwoty na te kategorie. Natomiast, widać trochę większe odchylenie w przypadku odzieży wierzchniej (Outerwear), co świadczy o tym, że w przypadku tej kategorii wydatki są bardziej zróżnicowane. Skośność bliska zeru wskazuje na symetryczny rozkład wydatków klientów. Sugeruje to, że struktura asortymentowa sklepu jest zbalansowana, a klienci równie chętnie wybierają produkty z dolnej, jak i górnej półki cenowej. Wyniki kurtozy oznaczają, że wydatki nie są mocno skoncentrowane wokół jednej kwoty, ale są dość równomiernie "rozsiane".
 :::
 
 ```{r echo=FALSE, warning=FALSE, results='asis'}
@@ -315,13 +307,14 @@ reactable(summary_tbl,
 ```
 
 ::: {style="text-align: justify;"}
+
 Na podstawie wyników można stwierdzić, że średni wiek badanych wynosi **44 lata**, przy dużym zróżnicowaniu **(SD = 15.22)**, co wskazuje na udział osób z różnych grup wiekowych. Średnia kwota zakupu to **59,61 USD**, a wcześniejsze wydatki wynosiły przeciętnie **25,35 USD**, co może sugerować wzrost zainteresowania ofertą lub skuteczność działań promocyjnych. Oceny produktów są raczej pozytywne (średnia 3,75 w skali 1–5), przy umiarkowanej zgodności opinii **(SD = 0,72)**. Wszystkie zmienne wykazują znaczną zmienność, co świadczy o różnorodności zachowań konsumenckich w badanej grupie.
 :::
 
 ## Korelacje zmiennych jakościowych
 
 ::: {style="text-align: justify;"}
-Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi jakościowymi za pomocą współczynnika Craméra V. Współczynnik ten mierzy siłę związku pomiędzy dwiema zmiennymi kategorycznymi, przyjmując wartości od 0 (brak związku) do 1 (pełna zależność).
+Dla badanego zbioru danych przeprowadzono analizę korelacji pomiędzy zmiennymi jakościowymi za pomocą współczynnika V-Craméra. Współczynnik ten mierzy siłę związku pomiędzy dwiema zmiennymi kategorycznymi, przyjmując wartości od 0 (brak związku) do 1 (pełna zależność).
 :::
 
 ```{r echo=FALSE, warning=FALSE}
@@ -375,7 +368,7 @@ ggplotly(g)
 ```
 
 ::: {style="text-align: justify;"}
-Analiza współzależności pomiędzy zmiennymi jakościowymi, oparta na współczynniku Cramera V, ujawnia wyraźne skupiska silnych relacji w badanym zbiorze danych. Najbardziej widoczne jest powiązanie między zmiennymi Item i Category, co wskazuje, że typ produktu jest ściśle związany z jego klasyfikacją. Drugim istotnym skupiskiem zależności jest Code–Discount–Subscription, gdzie zarówno kod promocyjny, jak i rodzaj zastosowanej zniżki oraz status subskrypcji wykazują wzajemne, podwyższone powiązania. Sugeruje to, że określone kody i rabaty mogą być częściej kierowane do subskrybentów lub stosowane w ramach konkretnych strategii marketingowych.
+Analiza współzależności pomiędzy zmiennymi jakościowymi, wskazuje wyraźne skupiska silnych relacji w badanym zbiorze danych. Najbardziej widoczne jest powiązanie między zmiennymi Item i Category, co wskazuje, że typ produktu jest ściśle związany z jego klasyfikacją. Drugim istotnym skupiskiem zależności jest Code–Discount–Subscription, gdzie zarówno kod promocyjny, jak i rodzaj zastosowanej zniżki oraz status subskrypcji wykazują wzajemne, podwyższone powiązania. Sugeruje to, że określone kody i rabaty mogą być częściej kierowane do subskrybentów lub stosowane w ramach konkretnych strategii marketingowych.
 :::
 
 ## Korelacja zmiennych ilościowych
@@ -406,9 +399,7 @@ corrplot(
 ```
 
 ::: {style="text-align: justify;"}
-Analiza wykresu wskazuje, że pomiędzy żadną z par zmiennych nie występuje silna korelacja. Wszystkie współczynniki korelacji mieszczą się w przedziale **od -0.02 do 0.04**, co oznacza bardzo słabe lub wręcz pomijalne związki liniowe. Przykładowo, korelacja między Age a Rating wynosi **-0.02**, co sugeruje brak istotnego wpływu wieku klienta na ocenę produktu.
-
-Na tle tych słabych zależności wyróżniają się dwie pary zmiennych, dla których korelacja osiąga wartość około 0.4, wskazując na umiarkowaną dodatnią relację. Pierwsza z nich to Amount i Rating, gdzie wyższe kwoty wydatków wiążą się z wyższymi ocenami produktów. Może to sugerować, że droższe produkty są postrzegane jako lepsze jakościowo lub że klienci, inwestując więcej, częściej oceniają zakup pozytywnie. Druga zauważalna zależność dotyczy pary Previous.Purchases i Age, gdzie starsi klienci mają tendencję do częstszych zakupów wynikających z ich nawyków nabytych w przeszłości.
+Analiza wykresu wskazuje, że pomiędzy żadną z par zmiennych nie występuje silna korelacja. Wszystkie współczynniki korelacji mieszczą się w przedziale **od -0.02 do 0.05**, co oznacza bardzo słabe lub wręcz pomijalne związki liniowe. Przykładowo, korelacja między Age a Rating wynosi **-0.02**, co sugeruje brak istotnego wpływu wieku klienta na ocenę produktu.
 :::
 
 # Wizualizacja danych
@@ -535,7 +526,7 @@ ggplot(dane_kompletne, aes(x = Size, fill = Color)) +
 ## Jakie są preferencje klientów dotyczące metod płatności w zależności od grupy wiekowej?
 
 ::: {style="text-align: justify;"}
-Preferencje kielientów dotyczące metod płatności zostały przedstawione na wykresie słupkowym wielokrotnym, gdzie na osi X znajdują się różne metody płatności, a kolory słupków odpowiadają grupom wiekowym klientów. Klienci korzystają z sześciu różnych metod płatności: przelewu bankowego (Bank Transfer), gotówki (Cash), karty kredytowej (Credit Card), karty debetowej (Debit Card), systemu PayPal oraz Venmo. W niemal każdej kategorii płatności najliczniejszą grupę stanowią osoby w przedziałach wiekowych **30-44 oraz 45-59**. Osoby powyżej 60. roku życia wykazują najniższą liczebność we wszystkich rodzajach płatności. Przy czym najczęściej wybierają kartę kredytową albo gotówkę.
+Preferencje kielientów dotyczące metod płatności zostały przedstawione na wykresie słupkowym wielokrotnym, gdzie na osi X znajdują się różne metody płatności, a kolory słupków odpowiadają grupom wiekowym klientów. Klienci korzystają z sześciu różnych metod płatności: przelewu bankowego (Bank Transfer), gotówki (Cash), karty kredytowej (Credit Card), karty debetowej (Debit Card), systemu PayPal oraz Venmo. W niemal każdej kategorii płatności najliczniejszą grupę stanowią osoby w przedziałach wiekowych 30-44 oraz 45-59. Osoby powyżej 60. roku życia wykazują najniższą liczebność we wszystkich rodzajach płatności. Przy czym najczęściej wybierają kartę kredytową albo gotówkę.
 :::
 
 ```{r echo=FALSE, warning=FALSE}
@@ -561,13 +552,6 @@ Można więc wnioskować, że klienci wydający więcej częściej wybierają sz
 :::
 
 ```{r echo=FALSE, warning=FALSE}
-ggplot(data = dane_kompletne, aes(x=Amount, y=Shipping)) +
-  geom_col(fill = "#6094DB") +
-  xlab("Wydatki") +
-  ylab("Rodzaj wysyłki") +
-  ggtitle("Rodzaj wysyłki w zależności od wydanej kwoty") +
-  theme_light()
-
 dane_kompletne$Shipping <- factor(dane_kompletne$Shipping)
 
 ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
@@ -579,7 +563,7 @@ ggplot(dane_kompletne, aes(x=Amount, y=Shipping)) +
 ## Czy większa liczba klientów wpływa na wyższą sprzedaż w poszczególnych lokalizacjach?
 
 ::: {style="text-align: justify;"}
-Korelacja między całkowitą sprzedarząą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi **0,88.** Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, "średnie" wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
+Korelacja między całkowitą sprzedarząą a liczbą klientów w poszczególnych lokalizacjach została przedstawiona na wykresie punktowym. Na osi X znajduje się całkowita sprzedaż w danej lokalizacji, natomiast na osi Y liczba klientów, natomiast każdy punk odpowiada za jedną lokalizację Na wykresie widoczny jest trend wzrostowy. Wraz ze wzrostem liczby klientów w danej lokalizacji, proporcjonalnie rośnie całkowita sprzedaż.Punkty układają się wzdłuż linii diagonalnej, co sugeruje silną, liniową zależność między tymi zmiennymi. Potwierdza to wysoki wynik współczynnika korelacji Pearsona, który wynosi 0,88**.** Największe skupisko obserwacji znajduje się w środkowej części wykresu. Oznacza to, że większość lokalizacji osiąga zbliżone, "średnie" wyniki operacyjne. W prawym górnym rogu wykresu widoczne są punkty reprezentujące najbardziej dochodowe lokalizacje.
 :::
 
 ```{r echo=FALSE, warning=FALSE}
